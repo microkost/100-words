@@ -49,7 +49,7 @@
                         <ComboBox x:Name="Language1" 
                                   Header="Primary language"           
                                   ItemsSource="{x:Bind languages}"
-                                  SelectedItem="{x:Bind languages[0], Mode=OneWay}"
+                                  SelectedItem="{x:Bind languages[0], Mode=OneTime}"
                                   HorizontalAlignment="Stretch"                                  
                                   FlowDirection="RightToLeft"                                  
                                   Margin="0,0,0,20" />
@@ -57,7 +57,7 @@
                         <ComboBox x:Name="Language2" 
                                   Header="Secondary language"           
                                   ItemsSource="{x:Bind languages}"
-                                  SelectedItem="{x:Bind languages[1], Mode=OneWay}"
+                                  SelectedItem="{x:Bind languages[1], Mode=OneTime}"
                                   HorizontalAlignment="Stretch"
                                   FlowDirection="RightToLeft"                                  
                                   Margin="0,0,0,20" />
@@ -65,7 +65,7 @@
                         <ComboBox x:Name="Language3" 
                                   Header="Tertiary language"
                                   ItemsSource="{x:Bind languages}"
-                                  SelectedItem="{x:Bind languages[2], Mode=OneWay}"
+                                  SelectedItem="{x:Bind languages[2], Mode=OneTime}"
                                   HorizontalAlignment="Stretch"
                                   FlowDirection="RightToLeft"
                                   Margin="0,0,0,20"/>
@@ -73,7 +73,7 @@
                         <ComboBox x:Name="Language4" 
                                   Header="Quaternary language"
                                   ItemsSource="{x:Bind languages}"
-                                  SelectedItem="{x:Bind languages[3], Mode=OneWay}"
+                                  SelectedItem="{x:Bind languages[3], Mode=OneTime}"
                                   HorizontalAlignment="Stretch"
                                   FlowDirection="RightToLeft"
                                   Margin="0,0,0,20"/>

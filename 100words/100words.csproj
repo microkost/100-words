@@ -100,7 +100,6 @@
     </Compile>
     <Compile Include="Phrase.cs" />
     <Compile Include="Dictionary.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -108,7 +107,6 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LargeTile310x310Logo.scale-200.png" />
     <Content Include="Assets\SmallTile71x71Logo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -121,6 +119,7 @@
     <Content Include="Assets\flagEN.png" />
     <Content Include="Assets\flagFI.png" />
     <Content Include="Assets\flagPL.png" />
+    <Content Include="Properties\Default.rd.xml" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">

@@ -31,6 +31,17 @@ namespace words100
             try //languages order settings from permanent storage
             {
                 languages = ((string[])localSettings.Values["100wordsLanguageOrder"]).ToList();
+
+                // Validate loaded languages - check for duplicates or missing languages
+                var expectedLanguages = Dictionary.GetListOfLanguages();
+                if (languages.Count != expectedLanguages.Count || 
+                    languages.Distinct().Count() != languages.Count ||
+                    !expectedLanguages.All(lang => languages.Contains(lang)))
+                {
+                    // Corrupted data detected, reset to default
+                    languages = expectedLanguages;
+                    localSettings.Values["100wordsLanguageOrder"] = languages.ToArray();
+                }
             }
             catch
             {

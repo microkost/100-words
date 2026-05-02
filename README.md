@@ -98,6 +98,12 @@ This application is built as a **Universal Windows Platform (UWP)** app using mo
 
 For publishing certificates and Microsoft Store deployment, see: http://go.microsoft.com/fwlink/?LinkID=241478
 
+```powershell
+"C:\Program Files (x86)\Windows Kits\10\App Certification Kit\MakeAppx.exe" bundle /d <directory with .msix files in it> /p <path to output file>\<output file name>.msixbundle
+```
+
+Certificate renewal handling, see: https://learn.microsoft.com/en-us/previous-versions/br230260(v=vs.110)
+
 ### Required Dependencies
 
 The project uses the following NuGet packages:
