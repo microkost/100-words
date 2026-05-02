@@ -59,29 +59,32 @@ Future updates may include variable and extended dictionaries, contingent on use
 
 ## Technology Stack
 
-This application is built as a **Universal Windows Platform (UWP)** app using:
+This application is built as a **Universal Windows Platform (UWP)** app using modern .NET with Native AOT:
 
-- C# and XAML
+- .NET 10 with Native AOT compilation
+- C# and XAML (Windows.UI.Xaml)
 - Windows Live Tiles API for Start menu integration
 - UWP notifications framework
 - Offline-first architecture with no backend dependencies
-
-Note: UWP is deprecated by Microsoft, but the app remains functional on Windows 10 and 11. Future versions may migrate to modern platforms like WinUI 3 or .NET MAUI.
+- SDK-style project file with `UseUwp` and `UseUwpTools`
 
 ## Development
 
 ### Prerequisites
 
-- Visual Studio 2022 (or later) with UWP development tools
-- Windows 10/11 SDK (10.0.19041.0 or later recommended)
-- .NET development workload
+- Visual Studio 2022 (17.8+) or Visual Studio 2026 (or later) with UWP development tools
+- Windows 11 SDK (10.0.26100.0)
+- .NET 10 SDK or later
+
+> **Note**: This project requires Visual Studio MSBuild (not `dotnet build`) because UWP XAML compilation requires VS MSBuild tools.
 
 ### Installation for Developers
 
-1. Install Visual Studio 2022 or later
+1. Install Visual Studio 2026 or later
 2. In Visual Studio Installer, ensure you have:
-   - Universal Windows Platform development workload
-   - Windows 11 SDK (10.0.22621.0) or Windows 10 SDK (10.0.19041.0)
+   - Windows application development workload
+   - Universal Windows Platform tools (under Optional components)
+   - Windows 11 SDK (10.0.26100.0)
    - Download older SDKs from [Windows SDK Archive](https://learn.microsoft.com/en-us/windows/apps/windows-sdk/downloads-archive) if needed
 3. Clone the repository:
    ```
@@ -89,7 +92,7 @@ Note: UWP is deprecated by Microsoft, but the app remains functional on Windows 
    ```
 4. Open `100words.sln` in Visual Studio
 5. Restore NuGet packages
-6. Build and run
+6. Build and run (note: use Visual Studio build, not `dotnet build`, as UWP XAML compilation requires VS MSBuild)
 
 ### Publishing to Microsoft Store
 
@@ -99,7 +102,6 @@ For publishing certificates and Microsoft Store deployment, see: http://go.micro
 
 The project uses the following NuGet packages:
 
-- **Microsoft.NETCore.UniversalWindowsPlatform** (6.2.14) - UWP runtime
 - **Microsoft.Toolkit.Uwp.Notifications** (7.1.3) - Live Tile notifications
 
 ### Project Structure
@@ -137,6 +139,8 @@ This project is open source. Please check the repository for license details.
 ## Documentation
 
 - [ARCHITECTURE.md](ARCHITECTURE.md) - Technical architecture and design documentation for developers
+- [MODERNIZATION-PLAN.md](MODERNIZATION-PLAN.md) - Details about the migration from legacy .NET Native to modern .NET
+- [CHANGE-LOG.md](CHANGE-LOG.md) - Summary of changes made during modernization
 
 ---
 

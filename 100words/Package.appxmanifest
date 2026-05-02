@@ -8,13 +8,13 @@
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
   <Dependencies>
-    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.0.0" MaxVersionTested="10.0.0.0" />
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.19041.0" MaxVersionTested="10.0.26100.0" />
   </Dependencies>
   <Resources>
     <Resource Language="x-generate" />
   </Resources>
   <Applications>
-    <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="100words.App">
+    <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="words100.App">
       <uap:VisualElements DisplayName="100 words" Square150x150Logo="Assets\Square150x150Logo.png" Square44x44Logo="Assets\Square44x44Logo.png" Description="First 100 words are most important of learning any language. App supports basics in Finnish, Czech, Polish covered by English." BackgroundColor="transparent">
         <uap:DefaultTile ShortName="100 words" Wide310x150Logo="Assets\Wide310x150Logo.png" Square310x310Logo="Assets\LargeTile310x310Logo.png" Square71x71Logo="Assets\SmallTile71x71Logo.png">
           <uap:ShowNameOnTiles>

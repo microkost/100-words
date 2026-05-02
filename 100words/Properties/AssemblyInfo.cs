@@ -1,32 +1,15 @@
-﻿using System.Resources;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
-[assembly: AssemblyTitle("100 words")]
-[assembly: AssemblyDescription("First 100 words are most important of learning any language.")]
+[assembly: AssemblyTitle("100words")]
+[assembly: AssemblyDescription("First 100 words")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("ivo@kostecky.cz")]
-[assembly: AssemblyProduct("100 words (FIN-CZ-PL-EN)")]
-[assembly: AssemblyCopyright("Copyright ©  2018")]
+[assembly: AssemblyCompany("Ivo Kostecký")]
+[assembly: AssemblyProduct("100words")]
+[assembly: AssemblyCopyright("Copyright 2026")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version 
-//      Build Number
-//      Revision
-//
-// You can specify all the values or you can default the Build and Revision Numbers 
-// by using the '*' as shown below:
-// [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.1.12.0")]
+[assembly: AssemblyFileVersion("1.1.12.0")]
 [assembly: ComVisible(false)]
-[assembly: NeutralResourcesLanguage("en")]
-

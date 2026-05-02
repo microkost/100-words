@@ -6,16 +6,23 @@
 
 ## Technical Stack
 
-- **Platform**: Universal Windows Platform (UWP)
+- **Platform**: Universal Windows Platform (UWP) on modern .NET
 - **Language**: C# with XAML
-- **Target Framework**: UAP (Universal Application Platform)
-- **Windows SDK**: 10.0.19041.0 or later
-- **IDE**: Visual Studio 2022+
+- **Target Framework**: net10.0-windows10.0.26100.0
+- **Minimum Platform Version**: 10.0.19041.0 (Windows 10, version 2004)
+- **Maximum Tested Version**: 10.0.26100.0 (Windows 11, version 24H2)
+- **IDE**: Visual Studio 2022 (17.8+) or Visual Studio 2026+
+- **Project Style**: SDK-style with `UseUwp` and `UseUwpTools`
+- **XAML Support**: Windows.UI.Xaml via CsWinRT projections
+- **Build System**: Visual Studio MSBuild (required for UWP XAML compilation)
 
 ### Key Dependencies
 
-- `Microsoft.NETCore.UniversalWindowsPlatform` 6.2.14
-- `Microsoft.Toolkit.Uwp.Notifications` 7.1.3
+- `Microsoft.Toolkit.Uwp.Notifications` 7.1.3 - For Live Tile notifications
+
+### Migration History
+
+This application was successfully modernized from legacy .NET Native UWP to modern .NET. See [MODERNIZATION-PLAN.md](MODERNIZATION-PLAN.md) for details.
 
 ## Architecture Design
 
@@ -142,6 +149,7 @@ Users can reorder which language appears in which position:
 - **Live Tiles**: Core feature only available in UWP
 - **Windows Integration**: Native OS features
 - **Historical Context**: Developed when UWP was Microsoft's recommended platform
+- **Modern .NET Support**: Successfully migrated to modern .NET while keeping UWP features
 
 ### Why 4 Languages Max?
 
@@ -178,11 +186,23 @@ Users can reorder which language appears in which position:
 
 ### Local Development
 
-1. Open `100words.sln` in Visual Studio 2022+
-2. Ensure UWP workload and Windows SDK installed
+1. Open `100words.sln` in Visual Studio 2022 (17.8+) or Visual Studio 2026
+2. Ensure UWP workload and Windows SDK (10.0.26100.0) installed
 3. Restore NuGet packages
-4. Select platform (x86, x64, ARM)
-5. Build and run
+4. Set `100words` as the startup project
+5. Select platform (x86, x64, or ARM64)
+6. Build and run (F5)
+
+> **Important**: Must use Visual Studio build, not `dotnet build`, as UWP XAML compilation requires VS MSBuild.
+
+### Common Issues
+
+**Missing StoreLogo.png**: If you encounter an error about a missing payload file for `StoreLogo.png`, create the base file by copying one of the scaled versions:
+```powershell
+Copy-Item "Assets\StoreLogo.scale-100.png" -Destination "Assets\StoreLogo.png"
+```
+
+The project includes scaled asset versions (e.g., `StoreLogo.scale-100.png`, `StoreLogo.scale-200.png`) but Visual Studio may require the base file to exist.
 
 ### Microsoft Store Deployment
 
