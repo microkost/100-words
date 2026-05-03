@@ -82,7 +82,13 @@
                                 HorizontalAlignment="Stretch"                                
                                 Click="ButtonTile_Click"
                                 Margin="0,0,0,20" />
-                        
+
+                        <ToggleSwitch x:Name="AdvancedWordsToggle"
+                                      Header="Include advanced words"
+                                      OffContent="Basic (100 words)"
+                                      OnContent="Basic + Advanced (1000 words)"
+                                      Margin="0,0,0,20" />
+
                         <Button Content="Save settings" 
                                 HorizontalAlignment="Stretch"                                
                                 Click="ButtonSaveSettings_Click"

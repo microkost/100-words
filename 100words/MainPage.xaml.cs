@@ -15,43 +15,48 @@ namespace words100
 {
     public sealed partial class MainPage : Page
     {
-        List<String> languages; //names of available languages, index numbers are keys
+        List<String> languages; //language names shown in ComboBoxes (driven by JSON)
         List<Phrase> vocabulary; //globally used vocabulary
         DispatcherTimer dispatcherTimer; //refresh values event countdown
         Double timerRefreshValueinMinutes = 120;
+        bool includeAdvanced = false;
         private static Random rng = new Random();
 
         //permanent settings in computer
         Windows.Storage.ApplicationDataContainer localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
 
         public MainPage()
-        {            
-            vocabulary = Dictionary.GetListOfWords(); //loading default dictionary
+        {
+            // Load advanced setting before loading vocabulary
+            if (localSettings.Values["100wordsIncludeAdvanced"] is string advStr)
+                includeAdvanced = advStr == "true";
+
+            vocabulary = Dictionary.GetListOfWords(includeAdvanced);
 
             try //languages order settings from permanent storage
             {
                 languages = ((string[])localSettings.Values["100wordsLanguageOrder"]).ToList();
 
                 // Validate loaded languages - check for duplicates or missing languages
-                var expectedLanguages = Dictionary.GetListOfLanguages();
-                if (languages.Count != expectedLanguages.Count || 
+                var expectedLanguages = Dictionary.GetListOfLanguages().Select(l => l.Name).ToList();
+                if (languages.Count != expectedLanguages.Count ||
                     languages.Distinct().Count() != languages.Count ||
                     !expectedLanguages.All(lang => languages.Contains(lang)))
                 {
-                    // Corrupted data detected, reset to default
                     languages = expectedLanguages;
                     localSettings.Values["100wordsLanguageOrder"] = languages.ToArray();
                 }
             }
             catch
             {
-                languages = Dictionary.GetListOfLanguages(); //names of used languages, hardcoded in Dictionary
+                languages = Dictionary.GetListOfLanguages().Select(l => l.Name).ToList();
             }
-            
+
             this.InitializeComponent(); //gui start
+            AdvancedWordsToggle.IsOn = includeAdvanced;
             RefreshVocabulary(); //shuffle & show
 
-            //automatic timebased refresh of dictionary            
+            //automatic timebased refresh of dictionary
             if (Double.TryParse((string)localSettings.Values["100wordsRefreshTime"], out double timerValue))
             {
                 DispatcherTimerSetup(TimeSpan.FromHours(timerValue)); //(hh:mm:ss)
@@ -65,76 +70,30 @@ namespace words100
                 UpdateTime.Text = value.ToString();
                 timerRefreshValueinMinutes = value;
             }
-
-            //should do notification when change
-            //should be visible on lockscreen
-
         }
         internal void RefreshVocabulary()
         {
             vocabulary = Shuffle(vocabulary); //mix it
-            if (vocabulary.Count == 0) //last word is removed
+            if (vocabulary.Count == 0) //last word was removed
             {
-                vocabulary = Dictionary.GetListOfWords(); //get new words
-                vocabulary = Shuffle(vocabulary); //randomize first one
+                vocabulary = Dictionary.GetListOfWords(includeAdvanced);
+                vocabulary = Shuffle(vocabulary);
             }
-          //MakePhraseVisible(vocabulary.First()); //show it regardless order
-            MakePhraseVisible(vocabulary.First(), languages); //show it            
+            MakePhraseVisible(vocabulary.First(), languages);
         }
 
-        public void MakePhraseVisible(Phrase phrase) //emergency variant with hardcoded language order
+        public void MakePhraseVisible(Phrase phrase, List<String> specifiedOrder)
         {
-            Word0.Text = phrase.wordFI;
-            Word0Flag.Source = new BitmapImage(new Uri("ms-appx:///Assets/flagFI.png", UriKind.Absolute));
-            Word1.Text = phrase.wordEN;
-            Word1Flag.Source = new BitmapImage(new Uri("ms-appx:///Assets/flagEN.png", UriKind.Absolute));
-            Word2.Text = phrase.wordCZ;
-            Word2Flag.Source = new BitmapImage(new Uri("ms-appx:///Assets/flagCZ.png", UriKind.Absolute));
-            Word3.Text = phrase.wordPL;
-            Word3Flag.Source = new BitmapImage(new Uri("ms-appx:///Assets/flagPL.png", UriKind.Absolute));
+            var langDefs = Dictionary.GetListOfLanguages(); // code + name + flag from JSON
 
-            var notification = new TileNotification(GetNotificationScheme(phrase.wordFI, phrase.wordEN, phrase.wordCZ, phrase.wordPL).GetXml());            
-            TileUpdateManager.CreateTileUpdaterForApplication().Update(notification);
-            return;
-        }
-
-        public void MakePhraseVisible(Phrase phrase, List<String> specifiedOrder) //show phrase to user in defined order
-        {
-            if (specifiedOrder.Count < 4) //cannot use then...
+            List<Tuple<string, string>> phraseInOrder = new List<Tuple<string, string>>(); // (word, flagUri)
+            foreach (var langName in specifiedOrder)
             {
-                MakePhraseVisible(phrase);
+                var def = langDefs.FirstOrDefault(l => l.Name == langName);
+                if (def != null)
+                    phraseInOrder.Add(new Tuple<string, string>(phrase.GetTranslation(def.Code), def.Flag));
             }
 
-            List<Tuple<string, string>> phraseInOrder = new List<Tuple<string, string>>(); //word + proper flag set
-
-            for(int i = 0; i < Dictionary.GetListOfLanguages().Count(); i++) //parse order with actual word
-            {
-                if (specifiedOrder[i].Equals("Finnish"))
-                {
-                    phraseInOrder.Add(new Tuple<string, string>(phrase.wordFI, "ms-appx:///Assets/flagFI.png"));
-                    continue;
-                }
-
-                if (specifiedOrder[i].Equals("English"))
-                {
-                    phraseInOrder.Add(new Tuple<string, string>(phrase.wordEN, "ms-appx:///Assets/flagEN.png"));                    
-                    continue;
-                }
-
-                if (specifiedOrder[i].Equals("Czech"))
-                {
-                    phraseInOrder.Add(new Tuple<string, string>(phrase.wordCZ, "ms-appx:///Assets/flagCZ.png"));
-                    continue;
-                }
-
-                if (specifiedOrder[i].Equals("Polish"))
-                {
-                    phraseInOrder.Add(new Tuple<string, string>(phrase.wordPL, "ms-appx:///Assets/flagPL.png"));
-                    continue;
-                }
-            }
-
-            //set resources to GUI
             Word0.Text = phraseInOrder[0].Item1;
             Word0Flag.Source = new BitmapImage(new Uri(phraseInOrder[0].Item2, UriKind.Absolute));
             Word1.Text = phraseInOrder[1].Item1;
@@ -143,16 +102,13 @@ namespace words100
             Word2Flag.Source = new BitmapImage(new Uri(phraseInOrder[2].Item2, UriKind.Absolute));
             Word3.Text = phraseInOrder[3].Item1;
             Word3Flag.Source = new BitmapImage(new Uri(phraseInOrder[3].Item2, UriKind.Absolute));
-            
-            //Create a tile update manager for the specified syndication feed.
+
             var updater = TileUpdateManager.CreateTileUpdaterForApplication();
             updater.EnableNotificationQueue(true);
-            updater.Clear();            
+            updater.Clear();
             var notification = new TileNotification(GetNotificationScheme(phraseInOrder[0].Item1, phraseInOrder[1].Item1, phraseInOrder[2].Item1, phraseInOrder[3].Item1).GetXml());
-            notification.ExpirationTime = DateTimeOffset.UtcNow.AddMinutes(timerRefreshValueinMinutes); //how long from active to just logo
+            notification.ExpirationTime = DateTimeOffset.UtcNow.AddMinutes(timerRefreshValueinMinutes);
             updater.Update(notification);
-                       
-            return;
         }
 
         private void ButtonShuffle_Click(object sender, RoutedEventArgs e)
@@ -163,19 +119,24 @@ namespace words100
         private void ButtonSaveSettings_Click(object sender, RoutedEventArgs e) //process gui settings
         {
             //time change
-            dispatcherTimer.Stop(); //by default running
+            dispatcherTimer.Stop();
             if (Double.TryParse(UpdateTime.Text, out double timerValue))
             {
                 DispatcherTimerSetup(TimeSpan.FromMinutes(timerValue));
                 localSettings.Values["100wordsRefreshTime"] = timerValue.ToString();
             }
-            else //failure time change
+            else
             {
                 int value = 120;
-                DispatcherTimerSetup(new TimeSpan(0, value, 0)); //set time default (hh:mm:ss)
+                DispatcherTimerSetup(new TimeSpan(0, value, 0));
                 UpdateTime.Text = value.ToString();
             }
-            dispatcherTimer.Start(); //let's go again
+            dispatcherTimer.Start();
+
+            //advanced words toggle
+            includeAdvanced = AdvancedWordsToggle.IsOn;
+            localSettings.Values["100wordsIncludeAdvanced"] = includeAdvanced ? "true" : "false";
+            vocabulary = Dictionary.GetListOfWords(includeAdvanced);
 
             //lang selection
             List<String> langOrder = new List<String>
@@ -185,15 +146,12 @@ namespace words100
                 Language3.SelectedItem.ToString(),
                 Language4.SelectedItem.ToString()
             };
-            languages = langOrder; //save globally for later usage (refresh)
+            languages = langOrder;
 
-            MakePhraseVisible(vocabulary.First(), languages); //process that list
-            localSettings.Values["100wordsLanguageOrder"] = languages.ToArray(); //save it for next start
+            MakePhraseVisible(vocabulary.First(), languages);
+            localSettings.Values["100wordsLanguageOrder"] = languages.ToArray();
 
-            //some confirmation for user?
-            MenuSettingsChangeVisibility(); //close menu
-
-            return;
+            MenuSettingsChangeVisibility();
         }
 
         private async void ButtonTile_Click(object sender, RoutedEventArgs e)
