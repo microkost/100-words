@@ -1,29 +1,73 @@
 ﻿Product name:
 	100 slov
 	100words
-	100 słów
+	100 slowow
 	100 sanaa
 
 Description:
-Říká se, že naučením se prvních 100 slov ovládnete základy tohoto cizího jazyka. Aplikace vyučuje pasivním způsobem slovní zásobu prostřednictvím nabídky Start, kde vám budou slovíčka stále na očích i s překladem.
-Podporované jazyky: finština, angličtina, polština a čeština. Možnost nastavení vlastního pořadí a času	změny slovíčka.
 
-Once you’ve got the first 100 words in a language down you’re halfway through of overcoming the first steps of learning a language. 
-Supported languages: Finnish, English, Czech, Polish. You can set your own order of showing language and refresh time.
+--- CS (Czech) ---
+Rika se, ze naucenim se prvnich 100 slov ovladnete zaklady ciziho jazyka. Aplikace 100 slov vam pomaha ucit se slovni zasobu pasivnim a prirodzenym zpusobem - primo prostrednictvim nabidky Start ve Windows, kde vam budou slovicka stale na ocich spolu s prekladem.
 
-Mówi się, że nauka pierwszych 100 słów w nowym języku to połowa sukcesu do opanowania podstaw języka obcego. Aplikacja uczy słownictwa pasywnego za pośrednictwem menu Start w Windows, gdzie można zobaczyć nowe słowa wraz z tłumaczeniem. Obsługiwane języki: fiński, angielski, czeski, polski. Możesz dostosować kolejność i czas zmiany słowa.
+Nemusite spoustet zadnou aplikaci ani prerusovat svou praci. Staci otevrit nabidku Start a nove slovo se zobrazi automaticky. Postupnym opakovanim si slovni zasobu zapamatujete bez namahy.
 
-On sanottu että opittuaan kielestä 100 ensimmäistä sanaa, kielen opiskelusta tulee helpompaa. Tuetut kielet: suomi, englanti, tsekki, puola. Voit asettaa kieliin oman esitysjärjestyksen.
-//old: On sanottu, että opittuaan kielestä 100 ensimmäistä sanaa, on kielen opiskelu helpompaa. Tuetut kielet: suomi, englanti, tsekki, puola. Voit asettaa oman järjestyksen näyttämään kielen ja asettamaan ajan.
+Podporovane jazyky: cestina, anglictina, polstina a finstina. Aplikace zobrazuje slova ze ctyru jazyku soucasne, takze si muzete procvicovat vice jazyku najednou. Poradi zobrazovanych jazyku si muzete libovolne prizpusobit. Nastavte si take vlastni interval zmeny slovicka - od nekolika minut az po hodiny.
+
+Aplikace obsahuje zakladni slovni zasobu rozdelenou na dve urovne: zakladni a pokrocilou. Pokrocila slovicka lze volitelne zapnout v nastaveni.
+
+Idealni pro zacatecniky, cestovatele, studenty i kazdeho, kdo chce rozsirit svuj jazykovy obzor bez zbytecneho usili. Nechte Windows, at vas uci - kazdy den, krok za krokem.
+
+--- EN (English) ---
+They say that once you know the first 100 words of a language, you're halfway to mastering the basics. The 100 Words app helps you build vocabulary passively and effortlessly - directly through the Windows Start menu, where new words appear automatically alongside their translations.
+
+No need to open a dedicated study session or interrupt your workflow. Every time you open the Start menu, a word is right there waiting for you. Repeated exposure throughout the day helps you memorize vocabulary naturally over time.
+
+Supported languages: Czech, English, Polish, and Finnish. The app displays words in all four languages at once, making it easy to compare and learn multiple languages simultaneously. You can customize the order in which languages are shown to match your learning priorities. You can also set your preferred refresh interval - from minutes to hours - to control how often a new word appears.
+
+The vocabulary is split into two levels: basic and advanced. Advanced words can be optionally enabled in the settings.
+
+Perfect for beginners, travelers, students, or anyone who wants to expand their language skills without extra effort. Let Windows teach you - every day, one word at a time.
+
+--- PL (Polish) ---
+Mowi sie, ze nauka pierwszych 100 slow w nowym jezyku to polowa sukcesu w opanowaniu jego podstaw. Aplikacja 100 slow pomaga budowac slownictwo w sposob pasywny i naturalny - bezposrednio przez menu Start w systemie Windows, gdzie nowe slowa pojawiaja sie automatycznie wraz z tlumaczeniem.
+
+Nie musisz otwierac zadnej aplikacji ani przerywa swojej pracy. Wystarczy otworzyc menu Start, a nowe slowo pojawi sie samo. Codzienne powtarzanie pozwala zapamietywac slownictwo bez wysilku.
+
+Obslugiwane jezyki: czeski, angielski, polski i finski. Aplikacja wyswietla slowa we wszystkich czterech jezykach jednoczesnie, co ulatwia nauke i porownywanie jezykow. Mozesz dostosowac kolejnosc wyswietlania jezykow do swoich preferencji. Mozesz takze ustawic wlasny interwal zmiany slowa - od kilku minut do kilku godzin.
+
+Slownictwo podzielone jest na dwa poziomy: podstawowy i zaawansowany. Slowa zaawansowane mozna opcjonalnie wlaczyc w ustawieniach.
+
+Idealna dla poczatkujacych, podroznikow, studentow i kazdego, kto chce poszerzyc swoje horyzonty jezykowe bez zbednego wysilku. Pozwol, zeby Windows uczyl Cie kazdego dnia - krok po kroku.
+
+--- FI (Finnish) ---
+On sanottu, etta kun osaat kielen ensimmaiset 100 sanaa, olet jo puolivalia kielen perusteiden oppimisessa. 100 sanaa -sovellus auttaa sinua kartuttamaan sanavarastoasi passiivisesti ja luonnollisesti - suoraan Windowsin Kaynnista-valikon kautta, jossa uudet sanat nakyva automaattisesti kaannostensa kanssa.
+
+Sinun ei tarvitse avata erillistapistiklusovellusta tai keskeyttaa tyoskentelyas. Aina kun avaat Kaynnista-valikon, uusi sana on siella sinua varten. Paivittainen toisto auttaa sinua muistamaan sanat vaivattomasti ajan myota.
+
+Tuetut kielet: tsekki, englanti, puola ja suomi. Sovellus nayttaa sanat kaikilla neljalla kielella samanaikaisesti, mika helpottaa kielten vertailua ja useiden kielten oppimista yhta aikaa. Voit mukauttaa kielten nayttojajestyksen omien mieltymystesi mukaan. Voit myos asettaa haluamasi paivitysvali - muutamasta minuutista tunteihin.
+
+Sanasto on jaettu kahteen tasoon: perus- ja edistyneeseen. Edistyneet sanat voidaan ottaa kayttoon asetuksista.
+
+Taydellinen aloittelijoille, matkailijoille, opiskelijoille ja kaikille, jotka haluavat laajentaa kielitaitoaan ilman ylimaarista vaivaa. Anna Windowsin opettaa sinulle joka paiva - yksi sana kerrallaan.
 
 
 Screenshots (image captions)
-	Takto vypadá aplikace zapnutá na počítači.
-	How looks app on computer in desktop mode.
-	Jak wygląda aplikacja na komputerze.
-	Miltä sovellus näyttää tietokoneen työpöytätilassa.
+	Takto vypada aplikace zapnuta na pocitaci.
+	How the app looks on a computer in desktop mode.
+	Jak wyglada aplikacja na komputerze.
+	Milta sovellus nayttaa tietokoneen tyopoytätilassa.
 
-	Hlavní výhoda je v zobrazení slov v nabídce start v systému Windows.
-	The main advantage is in showing words on the Start menu in Windows.
-	Główną zaletą jest wyświetlanie słów w menu Start w systemie Windows.
-	Tärkein hyöty on sanojen näkyminen Windowsin Käynnistä-valikossa
+	Hlavni vyhoda je v zobrazeni slov v nabidce Start ve Windows.
+	The main advantage is showing words in the Windows Start menu.
+	Glowna zaleta jest wyswietlanie slow w menu Start w systemie Windows.
+	Tarkein hyoty on sanojen nakyminen Windowsin Kaynnista-valikossa.
+
+
+Search terms (up to 7, max 30 chars each):
+	learn language
+	words
+	Start menu
+	vocabulary
+	language learning
+	flashcards
+	passive learning
