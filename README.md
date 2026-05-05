@@ -1,6 +1,6 @@
 # 100 Words
 
-A language learning application that teaches users the 100 most essential words needed to kickstart their journey in a new language.
+A language learning application that teaches users the 100+ most essential words needed to kickstart their journey in a new language.
 
 <p align="center">
   <img src="documentation/100words-logo-250.png" alt="100 Words Logo" width="250"/>
@@ -39,23 +39,17 @@ Users can learn the 100 essential words from any supported language as long as t
 
 ## Supported Languages
 
-Currently supported languages:
+Supported languages:
 - Czech
 - English
 - Finnish
 - Polish
 
-View the complete [dictionary here](https://github.com/microkost/100-words/blob/master/100words/Dictionary.cs).
+View the complete [dictionary here](Assets/dictionary.json).
 
-### Future Language Support
+Significant part of vocabulary was collected from the page [uusikielemme.fi](http://uusikielemme.fi/), thank you.
 
-Planned additions:
-- German
-- Swedish
-
-Language additions depend on the availability of language experts and native speakers. [Submit suggestions or volunteer to help](https://goo.gl/forms/a72Osyz1Bpu4mqq22).
-
-Future updates may include variable and extended dictionaries, contingent on user adoption and feedback.
+Would you like to contribute with more words or phrases? [Submit suggestions or volunteer to help](https://goo.gl/forms/a72Osyz1Bpu4mqq22).
 
 ## Technology Stack
 
@@ -68,15 +62,15 @@ This application is built as a **Universal Windows Platform (UWP)** app using mo
 - Offline-first architecture with no backend dependencies
 - SDK-style project file with `UseUwp` and `UseUwpTools`
 
+## AI dislaimer
+
+- The app was originally written by developer's hand in 2018 as UWP app on legacy .NET Native as technology exercise.
+- Nowadays you also don't need a [publishing license](https://blogs.windows.com/windowsdeveloper/2025/09/10/free-developer-registration-for-individual-developers-on-microsoft-store/) for Microsoft Store that I earned for participation in a developer conference workshop.
+- Q1 of 2026 started with massive AI coding campaigns so I returned to my repository and modernized it with Claude Sonet 4.6 in Github Copilot.
+- AI was also used to expand the dictionary source.
+- These day you can vibe code similar app yourself. Amazing technology progress!
+
 ## Development
-
-### Prerequisites
-
-- Visual Studio 2022 (17.8+) or Visual Studio 2026 (or later) with UWP development tools
-- Windows 11 SDK (10.0.26100.0)
-- .NET 10 SDK or later
-
-> **Note**: This project requires Visual Studio MSBuild (not `dotnet build`) because UWP XAML compilation requires VS MSBuild tools.
 
 ### Installation for Developers
 
@@ -84,7 +78,6 @@ This application is built as a **Universal Windows Platform (UWP)** app using mo
 2. In Visual Studio Installer, ensure you have:
    - Windows application development workload
    - Universal Windows Platform tools (under Optional components)
-   - Windows 11 SDK (10.0.26100.0)
    - Download older SDKs from [Windows SDK Archive](https://learn.microsoft.com/en-us/windows/apps/windows-sdk/downloads-archive) if needed
 3. Clone the repository:
    ```
@@ -92,19 +85,7 @@ This application is built as a **Universal Windows Platform (UWP)** app using mo
    ```
 4. Open `100words.sln` in Visual Studio
 5. Restore NuGet packages
-6. Build and run (note: use Visual Studio build, not `dotnet build`, as UWP XAML compilation requires VS MSBuild)
-
-### Publishing to Microsoft Store
-
-For publishing certificates and Microsoft Store deployment, see: http://go.microsoft.com/fwlink/?LinkID=241478
-
-```powershell
-"C:\Program Files (x86)\Windows Kits\10\App Certification Kit\MakeAppx.exe" bundle /d <directory with .msix files in it> /p <path to output file>\<output file name>.msixbundle
-```
-
-Certificate renewal handling, see: https://learn.microsoft.com/en-us/previous-versions/br230260(v=vs.110)
-
-### Required Dependencies
+6. Build and run
 
 The project uses the following NuGet packages:
 
@@ -124,7 +105,19 @@ The project uses the following NuGet packages:
 
 For detailed technical architecture, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
-### Repository Links
+### Publishing to Microsoft Store
+
+- Start from https://storedeveloper.microsoft.com/
+- App dashboard in https://partner.microsoft.com/en-US/dashboard/apps-and-games/overview
+- Publishing documetnation https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/msix/create-app-submission
+- For publishing certificates see: http://go.microsoft.com/fwlink/?LinkID=241478
+- Certificate renewal handling, see: https://learn.microsoft.com/en-us/previous-versions/br230260(v=vs.110)
+
+```powershell
+"C:\Program Files (x86)\Windows Kits\10\App Certification Kit\MakeAppx.exe" bundle /d <directory with .msix files in it> /p <path to output file>\<output file name>.msixbundle
+```
+
+### Links
 
 - **Source Code**: https://github.com/microkost/100-words
 - **Microsoft Store**: https://apps.microsoft.com/detail/9MWRDJGPXZ6Q
@@ -140,14 +133,4 @@ Please feel free to submit issues and pull requests.
 
 ## License
 
-This project is open source. Please check the repository for license details.
-
-## Documentation
-
-- [ARCHITECTURE.md](ARCHITECTURE.md) - Technical architecture and design documentation for developers
-- [MODERNIZATION-PLAN.md](MODERNIZATION-PLAN.md) - Details about the migration from legacy .NET Native to modern .NET
-- [CHANGE-LOG.md](CHANGE-LOG.md) - Summary of changes made during modernization
-
----
-
-<p align="center">Made with care for language learners</p>
+Open source and open to remixing. Please attribute the original work when sharing or modifying.
