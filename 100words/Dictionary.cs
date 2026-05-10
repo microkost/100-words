@@ -62,15 +62,15 @@ namespace words100
 
     public class DictionaryData
     {
-        public List<LanguageDefinition> Languages { get; set; }
-        public List<Phrase> Phrases { get; set; }
+        public List<LanguageDefinition> Languages { get; set; } = new();
+        public List<Phrase> Phrases { get; set; } = new();
     }
 
     public class LanguageDefinition
     {
-        public string Code { get; set; }
-        public string Name { get; set; }
-        public string Flag { get; set; }
+        public string Code { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Flag { get; set; } = string.Empty;
     }
 }
 

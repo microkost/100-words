@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Windows.UI.Notifications;
@@ -29,12 +30,27 @@ namespace words100
 
         public MainPage()
         {
-            this.InitializeComponent(); //gui start
+            this.InitializeComponent();
+            this.Unloaded += MainPage_Unloaded;
+        }
+
+        private void MainPage_Unloaded(object sender, RoutedEventArgs e)
+        {
+            if (dispatcherTimer != null)
+            {
+                dispatcherTimer.Stop();
+                dispatcherTimer.Tick -= DispatcherTimer_TimeElapsedEvent;
+            }
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+
+            LoadingPanel.Visibility = Visibility.Visible;
+            contentWindow.Visibility = Visibility.Collapsed;
+            EmptyPanel.Visibility = Visibility.Collapsed;
+            ShuffleButton.Visibility = Visibility.Collapsed;
 
             // Load advanced setting before loading vocabulary
             if (localSettings["100wordsIncludeAdvanced"] is string advStr)
@@ -66,7 +82,23 @@ namespace words100
                 (await Dictionary.GetListOfLanguagesAsync()).Select(l => l.Name)).ToList();
 
             AdvancedWordsToggle.IsOn = includeAdvanced;
+
+            // Load theme setting - only apply if user explicitly chose Light or Dark
+            string savedTheme = localSettings["100wordsTheme"] as string ?? "Default";
+            ThemeSelector.SelectedIndex = savedTheme switch { "Light" => 1, "Dark" => 2, _ => 0 };
+            ThemeSelector.SelectionChanged += ThemeSelector_SelectionChanged;
+            if (savedTheme != "Default")
+                ApplyTheme(savedTheme);
+
+            // Load pane pin setting
+            if (localSettings["100wordsPanePinned"] is string pinned && pinned == "true")
+            {
+                PinPaneButton.IsChecked = true;
+                NavView.PaneDisplayMode = NavigationViewPaneDisplayMode.Left;
+            }
+
             RefreshVocabulary(); //shuffle & show
+            LoadingPanel.Visibility = Visibility.Collapsed;
 
             //automatic timebased refresh of dictionary
             if (Double.TryParse((string?)localSettings["100wordsRefreshTime"], out double timerValue))
@@ -85,15 +117,25 @@ namespace words100
         }
         internal async void RefreshVocabulary()
         {
-            if (vocabulary == null || vocabulary.Count == 0 || languages == null || languages.Count == 0)
+            if (vocabulary == null || vocabulary.Count == 0 || languages == null || languages.Count == 0
+                || languages.All(l => l == string.Empty))
+            {
+                contentWindow.Visibility = Visibility.Collapsed;
+                ShuffleButton.Visibility = Visibility.Collapsed;
+                EmptyPanel.Visibility = Visibility.Visible;
                 return;
+            }
 
-            vocabulary = Shuffle(vocabulary); //mix it
-            if (vocabulary.Count == 0) //last word was removed
+            vocabulary = Shuffle(vocabulary);
+            if (vocabulary.Count == 0)
             {
                 vocabulary = await Dictionary.GetListOfWordsAsync(includeAdvanced);
                 vocabulary = Shuffle(vocabulary);
             }
+
+            contentWindow.Visibility = Visibility.Visible;
+            ShuffleButton.Visibility = Visibility.Visible;
+            EmptyPanel.Visibility = Visibility.Collapsed;
             MakePhraseVisible(vocabulary.First(), languages);
         }
 
@@ -112,13 +154,13 @@ namespace words100
             }
 
             Word0.Text = phraseInOrder[0].Item1;
-            Word0Flag.Source = phraseInOrder[0].Item2 != null ? new BitmapImage(ResolveUri(phraseInOrder[0].Item2)) : null;
+            Word0Flag.Source = phraseInOrder[0].Item2 is string f0 ? new BitmapImage(ResolveUri(f0)) : null;
             Word1.Text = phraseInOrder[1].Item1;
-            Word1Flag.Source = phraseInOrder[1].Item2 != null ? new BitmapImage(ResolveUri(phraseInOrder[1].Item2)) : null;
+            Word1Flag.Source = phraseInOrder[1].Item2 is string f1 ? new BitmapImage(ResolveUri(f1)) : null;
             Word2.Text = phraseInOrder[2].Item1;
-            Word2Flag.Source = phraseInOrder[2].Item2 != null ? new BitmapImage(ResolveUri(phraseInOrder[2].Item2)) : null;
+            Word2Flag.Source = phraseInOrder[2].Item2 is string f2 ? new BitmapImage(ResolveUri(f2)) : null;
             Word3.Text = phraseInOrder[3].Item1;
-            Word3Flag.Source = phraseInOrder[3].Item2 != null ? new BitmapImage(ResolveUri(phraseInOrder[3].Item2)) : null;
+            Word3Flag.Source = phraseInOrder[3].Item2 is string f3 ? new BitmapImage(ResolveUri(f3)) : null;
 
             if (ApiInformation.IsTypePresent("Windows.UI.Notifications.TileUpdateManager") && IsPackaged())
             {
@@ -134,10 +176,54 @@ namespace words100
 
         private void ButtonShuffle_Click(object sender, RoutedEventArgs e)
         {
-            RefreshVocabulary(); //called from gui
+            RefreshVocabulary();
         }
 
-        private async void ButtonSaveSettings_Click(object sender, RoutedEventArgs e) //process gui settings
+        private void ButtonShuffle_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+            RefreshVocabulary();
+        }
+
+        private void ShuffleAccelerator_Invoked(KeyboardAccelerator sender, Microsoft.UI.Xaml.Input.KeyboardAcceleratorInvokedEventArgs args)
+        {
+            RefreshVocabulary();
+            args.Handled = true;
+        }
+
+        private void PinPaneButton_Checked(object sender, RoutedEventArgs e)
+        {
+            NavView.PaneDisplayMode = NavigationViewPaneDisplayMode.Left;
+            localSettings["100wordsPanePinned"] = "true";
+        }
+
+        private void PinPaneButton_Unchecked(object sender, RoutedEventArgs e)
+        {
+            NavView.PaneDisplayMode = NavigationViewPaneDisplayMode.LeftMinimal;
+            localSettings["100wordsPanePinned"] = "false";
+        }
+
+        private void ThemeSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ThemeSelector.SelectedItem is ComboBoxItem item && item.Tag is string tag)
+            {
+                ApplyTheme(tag);
+                localSettings["100wordsTheme"] = tag;
+            }
+        }
+
+        private void ApplyTheme(string theme)
+        {
+            ElementTheme elementTheme = theme switch
+            {
+                "Light" => ElementTheme.Light,
+                "Dark" => ElementTheme.Dark,
+                _ => ElementTheme.Default
+            };
+            if (XamlRoot?.Content is FrameworkElement root)
+                root.RequestedTheme = elementTheme;
+        }
+
+        private async void ButtonSaveSettings_Click(object sender, RoutedEventArgs e)
         {
             //time change
             dispatcherTimer?.Stop();
@@ -171,8 +257,6 @@ namespace words100
 
             MakePhraseVisible(vocabulary.First(), languages);
             localSettings["100wordsLanguageOrder"] = languages.ToArray();
-
-            MenuSettingsChangeVisibility();
         }
 
         private async void ButtonTile_Click(object sender, RoutedEventArgs e)
@@ -222,6 +306,11 @@ namespace words100
         }
         public void DispatcherTimerSetup(TimeSpan ts)
         {
+            if (dispatcherTimer != null)
+            {
+                dispatcherTimer.Stop();
+                dispatcherTimer.Tick -= DispatcherTimer_TimeElapsedEvent;
+            }
             dispatcherTimer = new DispatcherTimer();
             dispatcherTimer.Tick += DispatcherTimer_TimeElapsedEvent;
             dispatcherTimer.Interval = ts;
@@ -233,20 +322,6 @@ namespace words100
             dispatcherTimer?.Stop();
             RefreshVocabulary(); //reoder vocabulary and show it again
             dispatcherTimer.Start();
-        }
-
-        private void MenuSettingsChangeVisibility() //used for opening menu view
-        {
-            //https://docs.microsoft.com/en-us/windows/uwp/design/controls-and-patterns/split-view
-
-            if (SettingsView.IsPaneOpen)
-            {
-                SettingsView.IsPaneOpen = false;
-            }
-            else
-            {
-                SettingsView.IsPaneOpen = true;
-            }
         }
 
         private static Uri ResolveUri(string uri)
