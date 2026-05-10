@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Windows.UI.Notifications;
-using Microsoft.Toolkit.Uwp.Notifications; //tile design library
-using Windows.UI.Xaml.Media.Imaging;
 using Windows.Foundation.Metadata;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel;
@@ -15,49 +15,56 @@ namespace words100
 {
     public sealed partial class MainPage : Page
     {
-        List<String> languages; //language names shown in ComboBoxes (driven by JSON)
-        List<Phrase> vocabulary; //globally used vocabulary
-        DispatcherTimer dispatcherTimer; //refresh values event countdown
+        List<String> languages = new List<String>(); //language names shown in ComboBoxes (driven by JSON)
+        List<Phrase> vocabulary = new List<Phrase>(); //globally used vocabulary
+        DispatcherTimer? dispatcherTimer; //refresh values event countdown
         Double timerRefreshValueinMinutes = 120;
         bool includeAdvanced = false;
         private static Random rng = new Random();
 
         //permanent settings in computer
-        Windows.Storage.ApplicationDataContainer localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
+        readonly LocalSettingsHelper localSettingsHelper = new LocalSettingsHelper("100words");
+        LocalSettingsValues localSettings => localSettingsHelper.Values;
 
         public MainPage()
         {
+            this.InitializeComponent(); //gui start
+        }
+
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+
             // Load advanced setting before loading vocabulary
-            if (localSettings.Values["100wordsIncludeAdvanced"] is string advStr)
+            if (localSettings["100wordsIncludeAdvanced"] is string advStr)
                 includeAdvanced = advStr == "true";
 
-            vocabulary = Dictionary.GetListOfWords(includeAdvanced);
+            vocabulary = await Dictionary.GetListOfWordsAsync(includeAdvanced);
 
             try //languages order settings from permanent storage
             {
-                languages = ((string[])localSettings.Values["100wordsLanguageOrder"]).ToList();
+                languages = ((string[])localSettings["100wordsLanguageOrder"]!).ToList();
 
                 // Validate loaded languages - check for duplicates or missing languages
-                var expectedLanguages = Dictionary.GetListOfLanguages().Select(l => l.Name).ToList();
+                var expectedLanguages = (await Dictionary.GetListOfLanguagesAsync()).Select(l => l.Name).ToList();
                 if (languages.Count != expectedLanguages.Count ||
                     languages.Distinct().Count() != languages.Count ||
                     !expectedLanguages.All(lang => languages.Contains(lang)))
                 {
                     languages = expectedLanguages;
-                    localSettings.Values["100wordsLanguageOrder"] = languages.ToArray();
+                    localSettings["100wordsLanguageOrder"] = languages.ToArray();
                 }
             }
             catch
             {
-                languages = Dictionary.GetListOfLanguages().Select(l => l.Name).ToList();
+                languages = (await Dictionary.GetListOfLanguagesAsync()).Select(l => l.Name).ToList();
             }
 
-            this.InitializeComponent(); //gui start
             AdvancedWordsToggle.IsOn = includeAdvanced;
             RefreshVocabulary(); //shuffle & show
 
             //automatic timebased refresh of dictionary
-            if (Double.TryParse((string)localSettings.Values["100wordsRefreshTime"], out double timerValue))
+            if (Double.TryParse((string?)localSettings["100wordsRefreshTime"], out double timerValue))
             {
                 DispatcherTimerSetup(TimeSpan.FromHours(timerValue)); //(hh:mm:ss)
                 UpdateTime.Text = timerValue.ToString();
@@ -71,20 +78,23 @@ namespace words100
                 timerRefreshValueinMinutes = value;
             }
         }
-        internal void RefreshVocabulary()
+        internal async void RefreshVocabulary()
         {
+            if (vocabulary == null || vocabulary.Count == 0 || languages == null || languages.Count == 0)
+                return;
+
             vocabulary = Shuffle(vocabulary); //mix it
             if (vocabulary.Count == 0) //last word was removed
             {
-                vocabulary = Dictionary.GetListOfWords(includeAdvanced);
+                vocabulary = await Dictionary.GetListOfWordsAsync(includeAdvanced);
                 vocabulary = Shuffle(vocabulary);
             }
             MakePhraseVisible(vocabulary.First(), languages);
         }
 
-        public void MakePhraseVisible(Phrase phrase, List<String> specifiedOrder)
+        public async void MakePhraseVisible(Phrase phrase, List<String> specifiedOrder)
         {
-            var langDefs = Dictionary.GetListOfLanguages(); // code + name + flag from JSON
+            var langDefs = await Dictionary.GetListOfLanguagesAsync(); // code + name + flag from JSON
 
             List<Tuple<string, string>> phraseInOrder = new List<Tuple<string, string>>(); // (word, flagUri)
             foreach (var langName in specifiedOrder)
@@ -103,12 +113,16 @@ namespace words100
             Word3.Text = phraseInOrder[3].Item1;
             Word3Flag.Source = new BitmapImage(new Uri(phraseInOrder[3].Item2, UriKind.Absolute));
 
-            var updater = TileUpdateManager.CreateTileUpdaterForApplication();
-            updater.EnableNotificationQueue(true);
-            updater.Clear();
-            var notification = new TileNotification(GetNotificationScheme(phraseInOrder[0].Item1, phraseInOrder[1].Item1, phraseInOrder[2].Item1, phraseInOrder[3].Item1).GetXml());
-            notification.ExpirationTime = DateTimeOffset.UtcNow.AddMinutes(timerRefreshValueinMinutes);
-            updater.Update(notification);
+            if (ApiInformation.IsTypePresent("Windows.UI.Notifications.TileUpdateManager") && IsPackaged())
+            {
+                var updater = TileUpdateManager.CreateTileUpdaterForApplication();
+                updater.EnableNotificationQueue(true);
+                updater.Clear();
+                var tileXml = GetNotificationXml(phraseInOrder[0].Item1, phraseInOrder[1].Item1, phraseInOrder[2].Item1, phraseInOrder[3].Item1);
+                var notification = new TileNotification(tileXml);
+                notification.ExpirationTime = DateTimeOffset.UtcNow.AddMinutes(timerRefreshValueinMinutes);
+                updater.Update(notification);
+            }
         }
 
         private void ButtonShuffle_Click(object sender, RoutedEventArgs e)
@@ -116,14 +130,14 @@ namespace words100
             RefreshVocabulary(); //called from gui
         }
 
-        private void ButtonSaveSettings_Click(object sender, RoutedEventArgs e) //process gui settings
+        private async void ButtonSaveSettings_Click(object sender, RoutedEventArgs e) //process gui settings
         {
             //time change
-            dispatcherTimer.Stop();
+            dispatcherTimer?.Stop();
             if (Double.TryParse(UpdateTime.Text, out double timerValue))
             {
                 DispatcherTimerSetup(TimeSpan.FromMinutes(timerValue));
-                localSettings.Values["100wordsRefreshTime"] = timerValue.ToString();
+                localSettings["100wordsRefreshTime"] = timerValue.ToString();
             }
             else
             {
@@ -135,21 +149,21 @@ namespace words100
 
             //advanced words toggle
             includeAdvanced = AdvancedWordsToggle.IsOn;
-            localSettings.Values["100wordsIncludeAdvanced"] = includeAdvanced ? "true" : "false";
-            vocabulary = Dictionary.GetListOfWords(includeAdvanced);
+            localSettings["100wordsIncludeAdvanced"] = includeAdvanced ? "true" : "false";
+            vocabulary = await Dictionary.GetListOfWordsAsync(includeAdvanced);
 
             //lang selection
             List<String> langOrder = new List<String>
             {
-                Language1.SelectedItem.ToString(),
-                Language2.SelectedItem.ToString(),
-                Language3.SelectedItem.ToString(),
-                Language4.SelectedItem.ToString()
+                Language1.SelectedItem?.ToString() ?? string.Empty,
+                Language2.SelectedItem?.ToString() ?? string.Empty,
+                Language3.SelectedItem?.ToString() ?? string.Empty,
+                Language4.SelectedItem?.ToString() ?? string.Empty
             };
             languages = langOrder;
 
             MakePhraseVisible(vocabulary.First(), languages);
-            localSettings.Values["100wordsLanguageOrder"] = languages.ToArray();
+            localSettings["100wordsLanguageOrder"] = languages.ToArray();
 
             MenuSettingsChangeVisibility();
         }
@@ -157,7 +171,7 @@ namespace words100
         private async void ButtonTile_Click(object sender, RoutedEventArgs e)
         {
             //https://docs.microsoft.com/en-us/windows/uwp/design/shell/tiles-and-notifications/primary-tile-apis
-            if (ApiInformation.IsTypePresent("Windows.UI.StartScreen.StartScreenManager"))
+            if (ApiInformation.IsTypePresent("Windows.UI.StartScreen.StartScreenManager") && IsPackaged())
             {
                 // Primary tile API's supported!
 
@@ -174,10 +188,6 @@ namespace words100
                 // And pin it to Start
                 isPinned = await StartScreenManager.GetDefault().RequestAddAppListEntryAsync(entry);
             }
-            else
-            {
-                // Older version of Windows, no primary tile API's
-            }
         }
 
         public List<Phrase> Shuffle<Phrase>(List<Phrase> list) //mixing available dictionary to show first element
@@ -188,7 +198,7 @@ namespace words100
             }
             catch
             {
-                return null; //when last word was removed
+                return new List<Phrase>(); //when last word was removed, return empty list
             }
 
             int n = list.Count;
@@ -211,9 +221,9 @@ namespace words100
             dispatcherTimer.Start();
         }
 
-        void DispatcherTimer_TimeElapsedEvent(object sender, object e) //countdown event method
+        void DispatcherTimer_TimeElapsedEvent(object? sender, object e) //countdown event method
         {
-            dispatcherTimer.Stop();
+            dispatcherTimer?.Stop();
             RefreshVocabulary(); //reoder vocabulary and show it again
             dispatcherTimer.Start();
         }
@@ -232,111 +242,37 @@ namespace words100
             }
         }
 
-        internal TileContent GetNotificationScheme(string word0, string word1, string word2, string word3) //creating tile "XML" file
+        private static bool IsPackaged()
         {
-            //https://docs.microsoft.com/en-us/windows/uwp/design/shell/tiles-and-notifications/create-adaptive-tiles
+            try { var _ = Package.Current; return true; }
+            catch { return false; }
+        }
 
-            TileContent content = new TileContent()
-            {
-                Visual = new TileVisual()
-                {
-                    DisplayName = "100 finnish words",
-                    Branding = TileBranding.NameAndLogo, //text should be name of dictionary
-
-                    //TileLarge (only for desktop) //all languages showed
-                    TileLarge = new TileBinding()
-                    {
-                        Content = new TileBindingContentAdaptive()
-                        {
-                            Children =
-                            {
-                                new AdaptiveText()
-                                {
-                                    Text = word0,
-                                    HintStyle = AdaptiveTextStyle.HeaderNumeral, //super size
-                                    HintWrap = true
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = word1,
-                                    HintStyle = AdaptiveTextStyle.TitleSubtle, //big
-                                    HintWrap = true
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = word2,
-                                    HintStyle = AdaptiveTextStyle.TitleSubtle, //big
-                                    HintWrap = true
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = word3,
-                                    HintStyle = AdaptiveTextStyle.TitleSubtle, //big
-                                    HintWrap = true
-                                },
-                            }
-                        }
-                    },
-
-                    //TileWide
-                    TileWide = new TileBinding()
-                    {
-                        Content = new TileBindingContentAdaptive()
-                        {
-                            Children =
-                            {
-                                new AdaptiveText()
-                                {
-                                    Text = word0,
-                                    HintStyle = AdaptiveTextStyle.HeaderNumeral //extra size
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = String.Format("{0} / {1} / {2}", word1, word2, word3),
-                                    HintStyle = AdaptiveTextStyle.BodySubtle, //two words on same line, medium
-                                    HintWrap = true
-                                },
-                            }
-                        }
-                    },
-
-                    //TileMedium
-                    TileMedium = new TileBinding()
-                    {
-                        Branding = TileBranding.Logo,
-                        Content = new TileBindingContentAdaptive()
-                        {
-                            Children =
-                            {
-                                new AdaptiveText()
-                                {
-                                    Text = word0,
-                                    HintStyle = AdaptiveTextStyle.TitleNumeral //big size
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = word1,
-                                    HintStyle = AdaptiveTextStyle.Caption //small bold
-                                },
-
-                                new AdaptiveText()
-                                {
-                                    Text = word2,
-                                    HintStyle = AdaptiveTextStyle.CaptionSubtle //small
-                                }
-                            }
-                        }
-                    },
-
-                    //TileSmall - not used, cannot effectively show something
-                }
-            };
-            return content;
+        internal Windows.Data.Xml.Dom.XmlDocument GetNotificationXml(string word0, string word1, string word2, string word3)
+        {
+            string xmlString = $@"
+<tile>
+  <visual displayName=""100 finnish words"" branding=""nameAndLogo"">
+    <binding template=""TileLarge"">
+      <text hint-style=""headerNumeral"" hint-wrap=""true"">{System.Security.SecurityElement.Escape(word0)}</text>
+      <text hint-style=""titleSubtle"" hint-wrap=""true"">{System.Security.SecurityElement.Escape(word1)}</text>
+      <text hint-style=""titleSubtle"" hint-wrap=""true"">{System.Security.SecurityElement.Escape(word2)}</text>
+      <text hint-style=""titleSubtle"" hint-wrap=""true"">{System.Security.SecurityElement.Escape(word3)}</text>
+    </binding>
+    <binding template=""TileWide"">
+      <text hint-style=""headerNumeral"">{System.Security.SecurityElement.Escape(word0)}</text>
+      <text hint-style=""bodySubtle"" hint-wrap=""true"">{System.Security.SecurityElement.Escape(word1)} / {System.Security.SecurityElement.Escape(word2)} / {System.Security.SecurityElement.Escape(word3)}</text>
+    </binding>
+    <binding template=""TileMedium"" branding=""logo"">
+      <text hint-style=""titleNumeral"">{System.Security.SecurityElement.Escape(word0)}</text>
+      <text hint-style=""caption"">{System.Security.SecurityElement.Escape(word1)}</text>
+      <text hint-style=""captionSubtle"">{System.Security.SecurityElement.Escape(word2)}</text>
+    </binding>
+  </visual>
+</tile>";
+            var doc = new Windows.Data.Xml.Dom.XmlDocument();
+            doc.LoadXml(xmlString);
+            return doc;
         }
     }
 }

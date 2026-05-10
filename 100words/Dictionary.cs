@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Windows.Data.Json;
-using Windows.Storage;
+using System.IO;
 
 namespace words100
 {
@@ -11,36 +11,34 @@ namespace words100
     {
         private static DictionaryData _cache = null;
 
-        public static DictionaryData Load()
+        public static async Task<DictionaryData> LoadAsync()
         {
             if (_cache != null)
                 return _cache;
 
-            var uri = new System.Uri("ms-appx:///Assets/dictionary.json");
-            var file = Task.Run(async () => await StorageFile.GetFileFromApplicationUriAsync(uri)).Result;
-            var json = Task.Run(async () => await FileIO.ReadTextAsync(file)).Result;
+            var path = Path.Combine(AppContext.BaseDirectory, "Assets", "dictionary.json");
+            var json = await File.ReadAllTextAsync(path);
 
-            var root = JsonObject.Parse(json);
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
 
             var languages = new List<LanguageDefinition>();
-            foreach (var lang in root["languages"].GetArray())
+            foreach (var lang in root.GetProperty("languages").EnumerateArray())
             {
-                var o = lang.GetObject();
                 languages.Add(new LanguageDefinition
                 {
-                    Code = o["code"].GetString(),
-                    Name = o["name"].GetString(),
-                    Flag = o["flag"].GetString()
+                    Code = lang.GetProperty("code").GetString(),
+                    Name = lang.GetProperty("name").GetString(),
+                    Flag = lang.GetProperty("flag").GetString()
                 });
             }
 
             var phrases = new List<Phrase>();
-            foreach (var p in root["phrases"].GetArray())
+            foreach (var p in root.GetProperty("phrases").EnumerateArray())
             {
-                var o = p.GetObject();
-                var phrase = new Phrase { Level = o["level"].GetString() };
+                var phrase = new Phrase { Level = p.GetProperty("level").GetString() };
                 foreach (var lang in languages)
-                    phrase.Translations[lang.Code] = o[lang.Code].GetString();
+                    phrase.Translations[lang.Code] = p.GetProperty(lang.Code).GetString();
                 phrases.Add(phrase);
             }
 
@@ -48,14 +46,14 @@ namespace words100
             return _cache;
         }
 
-        public static List<LanguageDefinition> GetListOfLanguages()
+        public static async Task<List<LanguageDefinition>> GetListOfLanguagesAsync()
         {
-            return Load().Languages;
+            return (await LoadAsync()).Languages;
         }
 
-        public static List<Phrase> GetListOfWords(bool includeAdvanced = false)
+        public static async Task<List<Phrase>> GetListOfWordsAsync(bool includeAdvanced = false)
         {
-            var phrases = Load().Phrases;
+            var phrases = (await LoadAsync()).Phrases;
             return includeAdvanced
                 ? phrases.ToList()
                 : phrases.Where(p => p.Level == "basic").ToList();
@@ -75,3 +73,4 @@ namespace words100
         public string Flag { get; set; }
     }
 }
+

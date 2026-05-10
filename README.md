@@ -79,6 +79,7 @@ This application is built as a **Universal Windows Platform (UWP)** app using mo
    - Windows application development workload
    - Universal Windows Platform tools (under Optional components)
    - Download older SDKs from [Windows SDK Archive](https://learn.microsoft.com/en-us/windows/apps/windows-sdk/downloads-archive) if needed
+   - winget configure -f https://aka.ms/winui-config
 3. Clone the repository:
    ```
    git clone https://github.com/microkost/100-words.git
