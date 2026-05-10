@@ -16,6 +16,7 @@ namespace words100
     public sealed partial class MainPage : Page
     {
         List<String> languages = new List<String>(); //language names shown in ComboBoxes (driven by JSON)
+        List<String> languageOptions = new List<String>(); //all options including empty for ComboBoxes
         List<Phrase> vocabulary = new List<Phrase>(); //globally used vocabulary
         DispatcherTimer? dispatcherTimer; //refresh values event countdown
         Double timerRefreshValueinMinutes = 120;
@@ -45,13 +46,14 @@ namespace words100
             {
                 languages = ((string[])localSettings["100wordsLanguageOrder"]!).ToList();
 
-                // Validate loaded languages - check for duplicates or missing languages
+                // Validate loaded languages - check for invalid (non-empty) entries
                 var expectedLanguages = (await Dictionary.GetListOfLanguagesAsync()).Select(l => l.Name).ToList();
-                if (languages.Count != expectedLanguages.Count ||
-                    languages.Distinct().Count() != languages.Count ||
-                    !expectedLanguages.All(lang => languages.Contains(lang)))
+                bool hasInvalidEntry = languages.Count != 4 ||
+                    languages.Where(l => l != string.Empty).Distinct().Count() != languages.Where(l => l != string.Empty).Count() ||
+                    languages.Any(l => l != string.Empty && !expectedLanguages.Contains(l));
+                if (hasInvalidEntry)
                 {
-                    languages = expectedLanguages;
+                    languages = expectedLanguages.Take(4).ToList();
                     localSettings["100wordsLanguageOrder"] = languages.ToArray();
                 }
             }
@@ -59,6 +61,9 @@ namespace words100
             {
                 languages = (await Dictionary.GetListOfLanguagesAsync()).Select(l => l.Name).ToList();
             }
+
+            languageOptions = new List<String> { string.Empty }.Concat(
+                (await Dictionary.GetListOfLanguagesAsync()).Select(l => l.Name)).ToList();
 
             AdvancedWordsToggle.IsOn = includeAdvanced;
             RefreshVocabulary(); //shuffle & show
@@ -96,22 +101,24 @@ namespace words100
         {
             var langDefs = await Dictionary.GetListOfLanguagesAsync(); // code + name + flag from JSON
 
-            List<Tuple<string, string>> phraseInOrder = new List<Tuple<string, string>>(); // (word, flagUri)
+            // Always produce exactly 4 slots; empty name → hide word and flag
+            List<Tuple<string, string?>> phraseInOrder = new List<Tuple<string, string?>>();
             foreach (var langName in specifiedOrder)
             {
                 var def = langDefs.FirstOrDefault(l => l.Name == langName);
-                if (def != null)
-                    phraseInOrder.Add(new Tuple<string, string>(phrase.GetTranslation(def.Code), def.Flag));
+                phraseInOrder.Add(def != null
+                    ? new Tuple<string, string?>(phrase.GetTranslation(def.Code), def.Flag)
+                    : new Tuple<string, string?>(string.Empty, null));
             }
 
             Word0.Text = phraseInOrder[0].Item1;
-            Word0Flag.Source = new BitmapImage(new Uri(phraseInOrder[0].Item2, UriKind.Absolute));
+            Word0Flag.Source = phraseInOrder[0].Item2 != null ? new BitmapImage(ResolveUri(phraseInOrder[0].Item2)) : null;
             Word1.Text = phraseInOrder[1].Item1;
-            Word1Flag.Source = new BitmapImage(new Uri(phraseInOrder[1].Item2, UriKind.Absolute));
+            Word1Flag.Source = phraseInOrder[1].Item2 != null ? new BitmapImage(ResolveUri(phraseInOrder[1].Item2)) : null;
             Word2.Text = phraseInOrder[2].Item1;
-            Word2Flag.Source = new BitmapImage(new Uri(phraseInOrder[2].Item2, UriKind.Absolute));
+            Word2Flag.Source = phraseInOrder[2].Item2 != null ? new BitmapImage(ResolveUri(phraseInOrder[2].Item2)) : null;
             Word3.Text = phraseInOrder[3].Item1;
-            Word3Flag.Source = new BitmapImage(new Uri(phraseInOrder[3].Item2, UriKind.Absolute));
+            Word3Flag.Source = phraseInOrder[3].Item2 != null ? new BitmapImage(ResolveUri(phraseInOrder[3].Item2)) : null;
 
             if (ApiInformation.IsTypePresent("Windows.UI.Notifications.TileUpdateManager") && IsPackaged())
             {
@@ -240,6 +247,17 @@ namespace words100
             {
                 SettingsView.IsPaneOpen = true;
             }
+        }
+
+        private static Uri ResolveUri(string uri)
+        {
+            if (!IsPackaged() && uri.StartsWith("ms-appx:///", StringComparison.OrdinalIgnoreCase))
+            {
+                var relativePath = uri.Substring("ms-appx:///".Length).Replace('/', System.IO.Path.DirectorySeparatorChar);
+                var fullPath = System.IO.Path.Combine(AppContext.BaseDirectory, relativePath);
+                return new Uri(fullPath, UriKind.Absolute);
+            }
+            return new Uri(uri, UriKind.Absolute);
         }
 
         private static bool IsPackaged()

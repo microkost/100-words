@@ -20,6 +20,7 @@ namespace words100
             rootFrame.Navigate(typeof(MainPage), args.Arguments);
 
             _window.Content = rootFrame;
+            _window.Title = "100 Words";
             _window.Activate();
         }
     }

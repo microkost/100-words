@@ -16,19 +16,19 @@
         <Viewbox x:Name="contentWindow" Grid.Column="0">
             <StackPanel Orientation="Vertical" Padding="10,0,10,1">
                 <StackPanel Orientation="Horizontal">
-                    <Image x:Name="Word0Flag" Source="ms-appx:///Assets/flagFI.png" Width="30" Height="20" Margin="0,10,10,10"></Image>
+                    <Image x:Name="Word0Flag" Width="30" Height="20" Margin="0,10,10,10"></Image>
                     <TextBlock x:Name="Word0" Text="Word FIN" TextAlignment="Center" FontWeight="Bold" VerticalAlignment="Center"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <Image x:Name="Word1Flag" Source="ms-appx:///Assets/flagEN.png" Width="30" Height="20" Margin="0,10,10,10" ></Image>
+                    <Image x:Name="Word1Flag" Width="30" Height="20" Margin="0,10,10,10"></Image>
                     <TextBlock x:Name="Word1" Text="Word ENG" TextAlignment="Center" VerticalAlignment="Center"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <Image x:Name="Word2Flag" Source="ms-appx:///Assets/flagCZ.png" Width="30" Height="20" Margin="0,10,10,10" ></Image>
+                    <Image x:Name="Word2Flag" Width="30" Height="20" Margin="0,10,10,10"></Image>
                     <TextBlock x:Name="Word2" Text="Word CZE" TextAlignment="Center" VerticalAlignment="Center"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <Image x:Name="Word3Flag" Source="ms-appx:///Assets/flagPL.png" Width="30" Height="20" Margin="0,10,10,10" ></Image>
+                    <Image x:Name="Word3Flag" Width="30" Height="20" Margin="0,10,10,10"></Image>
                     <TextBlock x:Name="Word3" Text="Word POL" TextAlignment="Center" VerticalAlignment="Center"/>
                 </StackPanel>
             </StackPanel>
@@ -48,7 +48,7 @@
 
                         <ComboBox x:Name="Language1" 
                                   Header="Primary language"           
-                                  ItemsSource="{x:Bind languages}"
+                                  ItemsSource="{x:Bind languageOptions}"
                                   SelectedItem="{x:Bind languages[0], Mode=OneTime}"
                                   HorizontalAlignment="Stretch"                                  
                                   FlowDirection="RightToLeft"                                  
@@ -56,7 +56,7 @@
 
                         <ComboBox x:Name="Language2" 
                                   Header="Secondary language"           
-                                  ItemsSource="{x:Bind languages}"
+                                  ItemsSource="{x:Bind languageOptions}"
                                   SelectedItem="{x:Bind languages[1], Mode=OneTime}"
                                   HorizontalAlignment="Stretch"
                                   FlowDirection="RightToLeft"                                  
@@ -64,7 +64,7 @@
 
                         <ComboBox x:Name="Language3" 
                                   Header="Tertiary language"
-                                  ItemsSource="{x:Bind languages}"
+                                  ItemsSource="{x:Bind languageOptions}"
                                   SelectedItem="{x:Bind languages[2], Mode=OneTime}"
                                   HorizontalAlignment="Stretch"
                                   FlowDirection="RightToLeft"
@@ -72,7 +72,7 @@
 
                         <ComboBox x:Name="Language4" 
                                   Header="Quaternary language"
-                                  ItemsSource="{x:Bind languages}"
+                                  ItemsSource="{x:Bind languageOptions}"
                                   SelectedItem="{x:Bind languages[3], Mode=OneTime}"
                                   HorizontalAlignment="Stretch"
                                   FlowDirection="RightToLeft"
