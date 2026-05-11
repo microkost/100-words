@@ -1,6 +1,6 @@
 # 100 Words
 
-A language learning application that teaches users the 100+ most essential words needed to kickstart their journey in a new language.
+A Windows language-learning app that helps you build a practical starting vocabulary through repeated exposure to the most common words.
 
 <p align="center">
   <img src="documentation/100words-logo-250.png" alt="100 Words Logo" width="250"/>
@@ -12,126 +12,151 @@ A language learning application that teaches users the 100+ most essential words
   </a>
 </p>
 
-## About
+## What It Is
 
-The concept behind this app is based on the observation that the 100 most frequent words in any language provide the foundation for basic communication. While not academically researched, this idea emerged from personal experience learning Finnish as a non-native speaker.
+100 Words is for learners who want a small, useful vocabulary set they can revisit often. The app rotates words automatically, lets you control which languages are shown, and works fully offline.
 
-The app's standout feature is its **Windows 10 Live Tile** integration, displaying vocabulary words and translations directly in your Start menu. Each time you open the Start menu, you're exposed to new vocabulary, making language learning a natural part of your daily computer use.
+The original idea came from learning Finnish as a non-native speaker: a compact set of high-frequency words is often enough to make starting easier.
 
-Users can learn the 100 essential words from any supported language as long as they understand at least one other supported language. Language priorities can be customized in the settings.
+## Current App
+
+### For Users
+
+- Windows desktop app available through the [Microsoft Store](https://www.microsoft.com/store/productId/9MWRDJGPXZ6Q)
+- Offline-first experience with no account, sync, or backend required
+- Up to 4 visible language slots with configurable ordering
+- Adjustable refresh timer and manual shuffle
+- Light, dark, and system theme support
+- Optional advanced words in addition to the core vocabulary set
+- Live Tile-related behavior is no longer central on modern Windows, but the app still preserves the core learning flow
+
+### For Developers
+
+The current application is a **WinUI 3 unpackaged desktop app** built on **.NET 8**.
+
+- .NET 8
+- C# and XAML with `Microsoft.UI.Xaml`
+- WinUI 3 through **Windows App SDK 1.6**
+- File-backed local settings in `%LOCALAPPDATA%\100words\settings.json`
+- Vocabulary loaded from `100words/Assets/dictionary.json`
+- No backend services or online dependency
 
 ## Features
 
-- Multi-language translations - In-app translations to 4 languages in responsive design
-- Windows Live Tile - Pinned vocabulary display in Start menu
-- Customizable language priority - User-defined language order
-- Adjustable timer - Control how frequently words change
-- Skip functionality - Manually skip to the next word
-- Offline capable - Works without internet connection
-- Open source - Full source code available on GitHub
+- Learn from a compact, practical vocabulary list
+- Show translations in multiple languages at once
+- Reorder language priority in settings
+- Automatically rotate words on a timer
+- Shuffle manually at any time
+- Keep using it without an internet connection
+- Browse the source on [GitHub](https://github.com/microkost/100-words)
 
 ## Screenshots
 
 <p align="center">
-  <img src="documentation/screenshot-metro-ui-thumb.png" alt="Start Menu View" width="45%"/>
-  <img src="documentation/screenshot-desktop-thumb.png" alt="Desktop App View" width="45%"/>
+  <img src="documentation/screenshot-metro-ui-thumb.png" alt="Start Menu View 2018" width="45%"/>
+  <img src="documentation/screenshot-desktop-thumb.png" alt="Desktop App View 2018" width="45%"/>
 </p>
 
 ## Supported Languages
 
-Supported languages:
 - Czech
 - English
 - Finnish
 - Polish
 
-View the complete [dictionary here](Assets/dictionary.json).
+See the current vocabulary data in [100words/Assets/dictionary.json](100words/Assets/dictionary.json).
 
-Significant part of vocabulary was collected from the page [uusikielemme.fi](http://uusikielemme.fi/), thank you.
+Part of the vocabulary was sourced from [uusikielemme.fi](http://uusikielemme.fi/).
 
-Would you like to contribute with more words or phrases? [Submit suggestions or volunteer to help](https://goo.gl/forms/a72Osyz1Bpu4mqq22).
+If you want to suggest new words or phrases, use the [contribution form](https://goo.gl/forms/a72Osyz1Bpu4mqq22).
 
-## Technology Stack
+## Settings
 
-This application is built as a **Universal Windows Platform (UWP)** app using modern .NET with Native AOT:
+The app keeps its settings locally in:
 
-- .NET 10 with Native AOT compilation
-- C# and XAML (Windows.UI.Xaml)
-- Windows Live Tiles API for Start menu integration
-- UWP notifications framework
-- Offline-first architecture with no backend dependencies
-- SDK-style project file with `UseUwp` and `UseUwpTools`
+```text
+%LOCALAPPDATA%\100words\settings.json
+```
 
-## AI dislaimer
+## How It Got Here
 
-- The app was originally written by developer's hand in 2018 as UWP app on legacy .NET Native as technology exercise.
-- Nowadays you also don't need a [publishing license](https://blogs.windows.com/windowsdeveloper/2025/09/10/free-developer-registration-for-individual-developers-on-microsoft-store/) for Microsoft Store that I earned for participation in a developer conference workshop.
-- Q1 of 2026 started with massive AI coding campaigns so I returned to my repository and modernized it with Claude Sonet 4.6 in Github Copilot.
-- AI was also used to expand the dictionary source.
-- These day you can vibe code similar app yourself. Amazing technology progress!
+### 2018: Original UWP Version
+
+The first version was built by hand as a **Universal Windows Platform (UWP)** app and published as a personal Windows development exercise. At that time, **Windows 10 Live Tiles** were a meaningful part of the experience because vocabulary could appear directly in the Start menu.
+
+That version used:
+
+- `Windows.UI.Xaml`
+- UWP lifecycle APIs
+- `ApplicationData` for settings
+- Tile APIs such as `TileUpdateManager` and `StartScreenManager`
+
+### 2026: Modernized WinUI 3 Version
+
+As UWP moved into maintenance mode and Live Tiles disappeared from Windows 11, the app was modernized to the current WinUI 3 desktop model.
+
+The migration included:
+
+- `Windows.UI.Xaml` to `Microsoft.UI.Xaml`
+- UWP packaging to an unpackaged desktop app with bootstrap initialization
+- `ApplicationData` settings to file-backed JSON in local app data
+- `ms-appx:///` asset handling to runtime-resolved local file paths when unpackaged
+- older shell patterns to a `NavigationView`-based UI with Mica backdrop support
+- package-identity-only functionality guarded so it is skipped safely when unavailable
+
+The modernization also served as an experiment in AI-assisted legacy migration (Claude Sonnet 4.6). GitHub Copilot was part of that process, and AI was also used to help expand dictionary content.
+
+Microsoft Store registration for individual developers is now [free](https://blogs.windows.com/windowsdeveloper/2025/09/10/free-developer-registration-for-individual-developers-on-microsoft-store/).
 
 ## Development
 
-### Installation for Developers
+### Requirements
 
-1. Install Visual Studio 2026 or later
-2. In Visual Studio Installer, ensure you have:
-   - Windows application development workload
-   - Universal Windows Platform tools (under Optional components)
-   - Download older SDKs from [Windows SDK Archive](https://learn.microsoft.com/en-us/windows/apps/windows-sdk/downloads-archive) if needed
-   - winget configure -f https://aka.ms/winui-config
-3. Clone the repository:
-   ```
-   git clone https://github.com/microkost/100-words.git
-   ```
-4. Open `100words.sln` in Visual Studio
-5. Restore NuGet packages
-6. Build and run
+- Visual Studio 2022 or later
+- Windows application development workload
+- Windows App SDK support from that workload
+- Nuget `Microsoft.WindowsAppSDK`
+- Nuget `Microsoft.Windows.SDK.BuildTools`
 
-The project uses the following NuGet packages:
+### Getting Started
 
-- **Microsoft.Toolkit.Uwp.Notifications** (7.1.3) - Live Tile notifications
+1. Clone the repository.
+2. Open `100words.sln` in Visual Studio.
+3. Restore NuGet packages.
+4. Select `x64` as the target platform.
+5. Build and run.
 
 ### Project Structure
 
-```
+```text
 100words/
-├── Dictionary.cs          # Hardcoded vocabulary data for all languages
-├── Phrase.cs             # Data model for multi-language phrases
-├── MainPage.xaml         # Main UI layout
-├── MainPage.xaml.cs      # Core app logic and Live Tile updates
-├── App.xaml.cs           # Application lifecycle management
-└── Assets/               # Images, flags, and app icons
+├── Program.cs             # Bootstrap entry point for unpackaged WinUI 3
+├── App.xaml / App.xaml.cs # App startup, window creation, Mica backdrop
+├── MainPage.xaml          # Main UI shell
+├── MainPage.xaml.cs       # Vocabulary flow, settings, theme, tile guards
+├── Dictionary.cs          # Vocabulary loader
+├── Phrase.cs              # Phrase model
+├── LocalSettingsHelper.cs # File-backed settings store
+└── Assets/                # Dictionary, flags, and icons
 ```
 
-For detailed technical architecture, see [ARCHITECTURE.md](ARCHITECTURE.md).
+### Publishing
 
-### Publishing to Microsoft Store
-
-- Start from https://storedeveloper.microsoft.com/
-- App dashboard in https://partner.microsoft.com/en-US/dashboard/apps-and-games/overview
-- Publishing documetnation https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/msix/create-app-submission
-- For publishing certificates see: http://go.microsoft.com/fwlink/?LinkID=241478
-- Certificate renewal handling, see: https://learn.microsoft.com/en-us/previous-versions/br230260(v=vs.110)
-
-```powershell
-"C:\Program Files (x86)\Windows Kits\10\App Certification Kit\MakeAppx.exe" bundle /d <directory with .msix files in it> /p <path to output file>\<output file name>.msixbundle
-```
-
-### Links
-
-- **Source Code**: https://github.com/microkost/100-words
-- **Microsoft Store**: https://apps.microsoft.com/detail/9MWRDJGPXZ6Q
+- [Partner Center dashboard](https://partner.microsoft.com/en-US/dashboard/apps-and-games/overview)
+- [Microsoft Store publishing documentation](https://learn.microsoft.com/en-us/windows/apps/publish/publish-your-app/msix/create-app-submission)
 
 ## Contributing
 
-Contributions are welcome! Whether you want to:
-- Add translations for new languages
-- Fix bugs or improve features
-- Enhance documentation
+Contributions are welcome, especially for:
 
-Please feel free to submit issues and pull requests.
+- vocabulary improvements
+- new translations
+- bug fixes
+- documentation improvements
+
+Issues and pull requests are both welcome.
 
 ## License
 
-Open source and open to remixing. Please attribute the original work when sharing or modifying.
+Open source and open to remixing. Please attribute the original work when sharing or modifying it.

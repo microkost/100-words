@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
@@ -31,7 +32,15 @@ namespace words100
         public MainPage()
         {
             this.InitializeComponent();
+            this.Loaded += MainPage_Loaded;
             this.Unloaded += MainPage_Unloaded;
+        }
+
+        private void MainPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Apply theme here — page is fully in the visual tree so XamlRoot is ready
+            string savedTheme = localSettings["100wordsTheme"] as string ?? "Default";
+            ApplyTheme(savedTheme);
         }
 
         private void MainPage_Unloaded(object sender, RoutedEventArgs e)
@@ -46,23 +55,36 @@ namespace words100
         protected override async void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+            try
+            {
+                await LoadPageDataAsync();
+            }
+            catch (Exception ex)
+            {
+                LoadingPanel.Visibility = Visibility.Collapsed;
+                EmptyPanel.Visibility = Visibility.Visible;
+                System.Diagnostics.Debug.WriteLine($"Page load failed: {ex}");
+            }
+        }
 
+        private async Task LoadPageDataAsync()
+        {
             LoadingPanel.Visibility = Visibility.Visible;
             contentWindow.Visibility = Visibility.Collapsed;
             EmptyPanel.Visibility = Visibility.Collapsed;
             ShuffleButton.Visibility = Visibility.Collapsed;
 
-            // Load advanced setting before loading vocabulary
+            // Unsubscribe before changing index to avoid firing during init
+            ThemeSelector.SelectionChanged -= ThemeSelector_SelectionChanged;
+
             if (localSettings["100wordsIncludeAdvanced"] is string advStr)
                 includeAdvanced = advStr == "true";
 
             vocabulary = await Dictionary.GetListOfWordsAsync(includeAdvanced);
 
-            try //languages order settings from permanent storage
+            try
             {
                 languages = ((string[])localSettings["100wordsLanguageOrder"]!).ToList();
-
-                // Validate loaded languages - check for invalid (non-empty) entries
                 var expectedLanguages = (await Dictionary.GetListOfLanguagesAsync()).Select(l => l.Name).ToList();
                 bool hasInvalidEntry = languages.Count != 4 ||
                     languages.Where(l => l != string.Empty).Distinct().Count() != languages.Where(l => l != string.Empty).Count() ||
@@ -83,34 +105,29 @@ namespace words100
 
             AdvancedWordsToggle.IsOn = includeAdvanced;
 
-            // Load theme setting - only apply if user explicitly chose Light or Dark
             string savedTheme = localSettings["100wordsTheme"] as string ?? "Default";
             ThemeSelector.SelectedIndex = savedTheme switch { "Light" => 1, "Dark" => 2, _ => 0 };
             ThemeSelector.SelectionChanged += ThemeSelector_SelectionChanged;
-            if (savedTheme != "Default")
-                ApplyTheme(savedTheme);
 
-            // Load pane pin setting
-            if (localSettings["100wordsPanePinned"] is string pinned && pinned == "true")
-            {
-                PinPaneButton.IsChecked = true;
-                NavView.PaneDisplayMode = NavigationViewPaneDisplayMode.Left;
-            }
+            bool isPinned = localSettings["100wordsPanePinned"] is string pinned && pinned == "true";
+            PinPaneButton.IsChecked = isPinned;
+            NavView.PaneDisplayMode = isPinned
+                ? NavigationViewPaneDisplayMode.Left
+                : NavigationViewPaneDisplayMode.LeftMinimal;
 
-            RefreshVocabulary(); //shuffle & show
+            RefreshVocabulary();
             LoadingPanel.Visibility = Visibility.Collapsed;
 
-            //automatic timebased refresh of dictionary
             if (Double.TryParse((string?)localSettings["100wordsRefreshTime"], out double timerValue))
             {
-                DispatcherTimerSetup(TimeSpan.FromHours(timerValue)); //(hh:mm:ss)
+                DispatcherTimerSetup(TimeSpan.FromHours(timerValue));
                 UpdateTime.Text = timerValue.ToString();
                 timerRefreshValueinMinutes = timerValue;
             }
-            else //failure
+            else
             {
                 int value = 120;
-                DispatcherTimerSetup(new TimeSpan(0, value, 0)); //set time default when not saved (hh:mm:ss)
+                DispatcherTimerSetup(new TimeSpan(0, value, 0));
                 UpdateTime.Text = value.ToString();
                 timerRefreshValueinMinutes = value;
             }
@@ -182,6 +199,33 @@ namespace words100
         private void ButtonShuffle_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
         {
             RefreshVocabulary();
+        }
+
+        private async void ButtonReset_Tapped(object sender, RoutedEventArgs e)
+        {
+            var dialog = new ContentDialog
+            {
+                Title = "Restore default settings",
+                Content = "All saved preferences will be permanently cleared and the application will return to its initial state. This action cannot be undone.",
+                PrimaryButtonText = "Restore defaults",
+                CloseButtonText = "Cancel",
+                DefaultButton = ContentDialogButton.Close,
+                XamlRoot = this.XamlRoot
+            };
+
+            if (await dialog.ShowAsync() != ContentDialogResult.Primary)
+                return;
+
+            localSettingsHelper.Reset();
+
+            try
+            {
+                await LoadPageDataAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Reset reload failed: {ex}");
+            }
         }
 
         private void ShuffleAccelerator_Invoked(KeyboardAccelerator sender, Microsoft.UI.Xaml.Input.KeyboardAcceleratorInvokedEventArgs args)
@@ -335,11 +379,12 @@ namespace words100
             return new Uri(uri, UriKind.Absolute);
         }
 
-        private static bool IsPackaged()
-        {
-            try { var _ = Package.Current; return true; }
-            catch { return false; }
-        }
+        private static readonly bool _isPackaged = GetCurrentPackageFullName(out _) == 0;
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
+        private static extern int GetCurrentPackageFullName(out uint packageFullNameLength, System.Text.StringBuilder? packageFullName = null);
+
+        private static bool IsPackaged() => _isPackaged;
 
         internal Windows.Data.Xml.Dom.XmlDocument GetNotificationXml(string word0, string word1, string word2, string word3)
         {

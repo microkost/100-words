@@ -21,8 +21,9 @@
                               Unchecked="PinPaneButton_Unchecked"
                               ToolTipService.ToolTip="Pin menu open"
                               AutomationProperties.Name="Pin menu open"
+                              Width="32" Height="32" Padding="0"
                               Style="{StaticResource DefaultToggleButtonStyle}">
-                    <FontIcon Glyph="&#xE840;"/>
+                    <FontIcon Glyph="&#xE840;" FontSize="14"/>
                 </ToggleButton>
                 <TextBlock Text="100 Words" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center"/>
             </StackPanel>
@@ -89,7 +90,13 @@
                             Click="ButtonSaveSettings_Click"
                             Margin="0,8,0,0"/>
 
-                    <Expander Header="About" HorizontalAlignment="Stretch" Margin="0,8,0,0">
+                    <Button Content="Restore defaults"
+                            HorizontalAlignment="Stretch"
+                            Click="ButtonReset_Tapped"
+                            Margin="0,8,0,0"
+                            ToolTipService.ToolTip="Clear all saved settings and return to defaults"/>
+
+                    <Expander Header="About" HorizontalAlignment="Stretch" Margin="0,4,0,0">
                         <StackPanel Spacing="8">
                             <TextBlock TextWrapping="WrapWholeWords" Style="{StaticResource CaptionTextBlockStyle}">
                                 <Span xml:space="preserve"><Run>Fun app for vocabulary practice. </Run><Hyperlink NavigateUri="https://goo.gl/forms/a72Osyz1Bpu4mqq22">Suggest phrases or corrections.</Hyperlink></Span>

@@ -29,6 +29,21 @@ namespace words100
             Values = new LocalSettingsValues(_values, Save);
         }
 
+        /// <summary>
+        /// Clears all in-memory settings and deletes the settings file,
+        /// restoring the app to its first-run state.
+        /// </summary>
+        public void Reset()
+        {
+            _values.Clear();
+            try
+            {
+                if (File.Exists(_filePath))
+                    File.Delete(_filePath);
+            }
+            catch { }
+        }
+
         private Dictionary<string, object?> Load()
         {
             try
