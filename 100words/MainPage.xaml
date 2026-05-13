@@ -7,188 +7,190 @@
         <KeyboardAccelerator Key="F5" Invoked="ShuffleAccelerator_Invoked"/>
     </Page.KeyboardAccelerators>
 
-    <NavigationView x:Name="NavView"
-                    PaneDisplayMode="LeftMinimal"
-                    IsBackButtonVisible="Collapsed"
-                    IsSettingsVisible="False"
-                    OpenPaneLength="280">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-        <NavigationView.PaneHeader>
-            <StackPanel Orientation="Horizontal" Margin="16,8,8,0" Spacing="8">
-                <ToggleButton x:Name="PinPaneButton"
-                              IsChecked="False"
-                              Checked="PinPaneButton_Checked"
-                              Unchecked="PinPaneButton_Unchecked"
-                              ToolTipService.ToolTip="Pin menu open"
-                              AutomationProperties.Name="Pin menu open"
-                              Width="32" Height="32" Padding="0"
-                              Style="{StaticResource DefaultToggleButtonStyle}">
-                    <FontIcon Glyph="&#xE840;" FontSize="14"/>
-                </ToggleButton>
-                <TextBlock Text="100 Words" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center"/>
-            </StackPanel>
-        </NavigationView.PaneHeader>
+        <!-- Title bar row -->
+        <Grid Grid.Row="0" Background="{ThemeResource NavigationViewTopPaneBackground}" Padding="4,4,4,4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-        <NavigationView.MenuItems>
-            <NavigationViewItem Icon="Shuffle" Content="Shuffle"
-                                AutomationProperties.Name="Shuffle words"
-                                Tapped="ButtonShuffle_Tapped" SelectsOnInvoked="False"/>
-        </NavigationView.MenuItems>
+            <Button Grid.Column="0"
+                    x:Name="HamburgerButton"
+                    Width="40" Height="40" Padding="0"
+                    Click="HamburgerButton_Click"
+                    ToolTipService.ToolTip="Open settings"
+                    AutomationProperties.Name="Open settings"
+                    Style="{StaticResource DefaultButtonStyle}">
+                <FontIcon Glyph="&#xE700;" FontSize="16"/>
+            </Button>
 
-        <NavigationView.PaneFooter>
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel Margin="8,0,8,16" Spacing="4">
-                    <TextBox x:Name="UpdateTime"
-                             Header="Refresh interval (minutes)"
-                             Text="120"
-                             InputScope="Number"
-                             AcceptsReturn="False"
-                             TextWrapping="NoWrap"/>
-
-                    <ComboBox x:Name="Language1"
-                              Header="Slot 1 language"
-                              ItemsSource="{x:Bind languageOptions}"
-                              SelectedItem="{x:Bind languages[0], Mode=OneTime}"
-                              HorizontalAlignment="Stretch"
-                              Margin="0,12,0,0"/>
-
-                    <ComboBox x:Name="Language2"
-                              Header="Slot 2 language"
-                              ItemsSource="{x:Bind languageOptions}"
-                              SelectedItem="{x:Bind languages[1], Mode=OneTime}"
-                              HorizontalAlignment="Stretch"/>
-
-                    <ComboBox x:Name="Language3"
-                              Header="Slot 3 language"
-                              ItemsSource="{x:Bind languageOptions}"
-                              SelectedItem="{x:Bind languages[2], Mode=OneTime}"
-                              HorizontalAlignment="Stretch"/>
-
-                    <ComboBox x:Name="Language4"
-                              Header="Slot 4 language"
-                              ItemsSource="{x:Bind languageOptions}"
-                              SelectedItem="{x:Bind languages[3], Mode=OneTime}"
-                              HorizontalAlignment="Stretch"/>
-
-                    <ToggleSwitch x:Name="AdvancedWordsToggle"
-                                  Header="Include advanced words"
-                                  OffContent="Basic only"
-                                  OnContent="Basic + Advanced"
-                                  Margin="0,8,0,0"/>
-
-                    <ComboBox x:Name="ThemeSelector"
-                              Header="App theme"
-                              HorizontalAlignment="Stretch">
-                        <ComboBoxItem Content="System default" Tag="Default"/>
-                        <ComboBoxItem Content="Light" Tag="Light"/>
-                        <ComboBoxItem Content="Dark" Tag="Dark"/>
-                    </ComboBox>
-
-                    <Button Content="Save settings"
-                            Style="{StaticResource AccentButtonStyle}"
-                            HorizontalAlignment="Stretch"
-                            Click="ButtonSaveSettings_Click"
-                            Margin="0,8,0,0"/>
-
-                    <Button Content="Restore defaults"
-                            HorizontalAlignment="Stretch"
-                            Click="ButtonReset_Tapped"
-                            Margin="0,8,0,0"
-                            ToolTipService.ToolTip="Clear all saved settings and return to defaults"/>
-
-                    <Expander Header="About" HorizontalAlignment="Stretch" Margin="0,4,0,0">
-                        <StackPanel Spacing="8">
-                            <TextBlock TextWrapping="WrapWholeWords" Style="{StaticResource CaptionTextBlockStyle}">
-                                <Span xml:space="preserve"><Run>Fun app for vocabulary practice. </Run><Hyperlink NavigateUri="https://goo.gl/forms/a72Osyz1Bpu4mqq22">Suggest phrases or corrections.</Hyperlink></Span>
-                            </TextBlock>
-                            <TextBlock Style="{StaticResource CaptionTextBlockStyle}">
-                                <Span xml:space="preserve"><Run>Author: </Run><Hyperlink NavigateUri="http://www.kostecky.cz">Ivo Kosteck&#253;</Hyperlink></Span>
-                            </TextBlock>
-                        </StackPanel>
-                    </Expander>
-                </StackPanel>
-            </ScrollViewer>
-        </NavigationView.PaneFooter>
-
-        <!-- Main content -->
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-
-            <!-- Loading state -->
-            <StackPanel x:Name="LoadingPanel"
-                        Grid.Row="0"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Spacing="16">
-                <ProgressRing IsActive="True" Width="48" Height="48"/>
-                <TextBlock Text="Loading vocabulary..."
-                           Style="{StaticResource BodyTextBlockStyle}"
-                           HorizontalAlignment="Center"/>
-            </StackPanel>
-
-            <!-- Empty state -->
-            <StackPanel x:Name="EmptyPanel"
-                        Grid.Row="0"
-                        Visibility="Collapsed"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Spacing="12">
-                <FontIcon Glyph="&#xE82F;" FontSize="48"
-                          Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                <TextBlock Text="No words to show"
-                           Style="{StaticResource SubtitleTextBlockStyle}"
-                           HorizontalAlignment="Center"/>
-                <TextBlock Text="Check your language settings or enable advanced words."
-                           Style="{StaticResource BodyTextBlockStyle}"
-                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                           HorizontalAlignment="Center"
-                           TextWrapping="WrapWholeWords"
-                           MaxWidth="300"
-                           TextAlignment="Center"/>
-            </StackPanel>
-
-            <!-- Word content -->
-            <Viewbox x:Name="contentWindow"
-                     Grid.Row="0"
-                     Visibility="Collapsed"
-                     Stretch="Uniform"
-                     Margin="48,48,48,16">
-                <StackPanel Orientation="Vertical" Spacing="16">
-                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-                        <Image x:Name="Word0Flag" Width="36" Height="24"/>
-                        <TextBlock x:Name="Word0" Text="&#x2014;" Style="{StaticResource TitleLargeTextBlockStyle}" VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-                        <Image x:Name="Word1Flag" Width="36" Height="24"/>
-                        <TextBlock x:Name="Word1" Text="&#x2014;" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-                        <Image x:Name="Word2Flag" Width="36" Height="24"/>
-                        <TextBlock x:Name="Word2" Text="&#x2014;" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-                        <Image x:Name="Word3Flag" Width="36" Height="24"/>
-                        <TextBlock x:Name="Word3" Text="&#x2014;" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </StackPanel>
-            </Viewbox>
-
-            <Button Grid.Row="1"
-                    x:Name="ShuffleButton"
-                    Visibility="Collapsed"
-                    HorizontalAlignment="Center"
-                    Margin="0,24,0,40"
-                    Padding="20,12"
+            <Button Grid.Column="1"
+                    x:Name="ShuffleHeaderButton"
+                    Height="40" Padding="16,0"
                     Click="ButtonShuffle_Click"
-                    AutomationProperties.Name="Shuffle words (F5)"
+                    ToolTipService.ToolTip="Shuffle words (F5)"
+                    AutomationProperties.Name="Shuffle words"
                     Style="{StaticResource AccentButtonStyle}">
-                <FontIcon Glyph="&#xE72C;" FontSize="18"/>
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE8B1;" FontSize="14"/>
+                    <TextBlock Text="Shuffle"/>
+                </StackPanel>
             </Button>
         </Grid>
 
-    </NavigationView>
+        <!-- SplitView row -->
+        <SplitView x:Name="MainSplitView"
+                   Grid.Row="1"
+                   DisplayMode="Overlay"
+                   IsPaneOpen="False"
+                   OpenPaneLength="280"
+                   PanePlacement="Left">
+
+            <SplitView.Pane>
+                <Grid Background="{ThemeResource NavigationViewDefaultPaneBackground}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="8,8,8,0">
+                        <StackPanel Spacing="4" Margin="0,0,0,16">
+
+                            <TextBox x:Name="UpdateTime"
+                                     Header="Refresh interval (minutes)"
+                                     Text=""
+                                     InputScope="Number"
+                                     AcceptsReturn="False"
+                                     TextWrapping="NoWrap"/>
+
+                            <ComboBox x:Name="Language1"
+                                      Header="Slot 1 language"
+                                      ItemsSource="{x:Bind languageOptions}"
+                                      SelectedItem="{x:Bind languages[0], Mode=OneTime}"
+                                      HorizontalAlignment="Stretch"
+                                      Margin="0,12,0,0"/>
+
+                            <ComboBox x:Name="Language2"
+                                      Header="Slot 2 language"
+                                      ItemsSource="{x:Bind languageOptions}"
+                                      SelectedItem="{x:Bind languages[1], Mode=OneTime}"
+                                      HorizontalAlignment="Stretch"/>
+
+                            <ComboBox x:Name="Language3"
+                                      Header="Slot 3 language"
+                                      ItemsSource="{x:Bind languageOptions}"
+                                      SelectedItem="{x:Bind languages[2], Mode=OneTime}"
+                                      HorizontalAlignment="Stretch"/>
+
+                            <ComboBox x:Name="Language4"
+                                      Header="Slot 4 language"
+                                      ItemsSource="{x:Bind languageOptions}"
+                                      SelectedItem="{x:Bind languages[3], Mode=OneTime}"
+                                      HorizontalAlignment="Stretch"/>
+
+                            <ToggleSwitch x:Name="AdvancedWordsToggle"
+                                          Header="Include advanced words"
+                                          OffContent="Basic only"
+                                          OnContent="Basic + Advanced"
+                                          Margin="0,8,0,0"/>
+
+                            <ComboBox x:Name="ThemeSelector"
+                                      Header="App theme"
+                                      HorizontalAlignment="Stretch">
+                                <ComboBoxItem Content="System default" Tag="Default"/>
+                                <ComboBoxItem Content="Light" Tag="Light"/>
+                                <ComboBoxItem Content="Dark" Tag="Dark"/>
+                            </ComboBox>
+
+                            <Button Content="Restore defaults"
+                                    HorizontalAlignment="Stretch"
+                                    Click="ButtonReset_Tapped"
+                                    Margin="0,4,0,0"
+                                    ToolTipService.ToolTip="Clear all saved settings and return to defaults"/>
+
+                            <Expander Header="About" HorizontalAlignment="Stretch" Margin="0,8,0,0">
+                                <StackPanel Spacing="8">
+                                    <TextBlock TextWrapping="WrapWholeWords" Style="{StaticResource CaptionTextBlockStyle}">
+                                        <Span xml:space="preserve"><Run>Fun app for vocabulary practice. </Run><Hyperlink NavigateUri="https://goo.gl/forms/a72Osyz1Bpu4mqq22">Suggest phrases or corrections.</Hyperlink></Span>
+                                    </TextBlock>
+                                    <TextBlock Style="{StaticResource CaptionTextBlockStyle}">
+                                        <Span xml:space="preserve"><Run>Author: </Run><Hyperlink NavigateUri="http://www.kostecky.cz">Ivo Kosteck&#253;</Hyperlink></Span>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Expander>
+
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </SplitView.Pane>
+
+            <!-- Main content -->
+            <Grid>
+
+                <!-- Loading state -->
+                <StackPanel x:Name="LoadingPanel"
+                            Grid.Row="0"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Spacing="16">
+                    <ProgressRing IsActive="True" Width="48" Height="48"/>
+                    <TextBlock Text="Loading vocabulary..."
+                               Style="{StaticResource BodyTextBlockStyle}"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Empty state -->
+                <StackPanel x:Name="EmptyPanel"
+                            Grid.Row="0"
+                            Visibility="Collapsed"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Spacing="12">
+                    <FontIcon Glyph="&#xE82F;" FontSize="48"
+                              Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock Text="No words to show"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="Check your language settings or enable advanced words."
+                               Style="{StaticResource BodyTextBlockStyle}"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               HorizontalAlignment="Center"
+                               TextWrapping="WrapWholeWords"
+                               MaxWidth="300"
+                               TextAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Word content -->
+                <Viewbox x:Name="contentWindow"
+                         Visibility="Collapsed"
+                         Stretch="Uniform"
+                         VerticalAlignment="Top"
+                         Margin="24,8,24,8">
+                    <StackPanel Orientation="Vertical" Spacing="8" HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                            <Image x:Name="Word0Flag" Width="36" Height="24"/>
+                            <TextBlock x:Name="Word0" Text="&#x2014;" Style="{StaticResource TitleLargeTextBlockStyle}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                            <Image x:Name="Word1Flag" Width="36" Height="24"/>
+                            <TextBlock x:Name="Word1" Text="&#x2014;" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                            <Image x:Name="Word2Flag" Width="36" Height="24"/>
+                            <TextBlock x:Name="Word2" Text="&#x2014;" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                            <Image x:Name="Word3Flag" Width="36" Height="24"/>
+                            <TextBlock x:Name="Word3" Text="&#x2014;" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Viewbox>
+
+            </Grid>
+
+        </SplitView>
+    </Grid>
 
 </Page>

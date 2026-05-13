@@ -7,11 +7,6 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Media.Imaging;
-using Windows.UI.Notifications;
-using Windows.Foundation.Metadata;
-using Windows.ApplicationModel.Core;
-using Windows.ApplicationModel;
-using Windows.UI.StartScreen;
 
 namespace words100
 {
@@ -20,10 +15,10 @@ namespace words100
         List<String> languages = new List<String>(); //language names shown in ComboBoxes (driven by JSON)
         List<String> languageOptions = new List<String>(); //all options including empty for ComboBoxes
         List<Phrase> vocabulary = new List<Phrase>(); //globally used vocabulary
-        DispatcherTimer? dispatcherTimer; //refresh values event countdown
-        Double timerRefreshValueinMinutes = 120;
+        DispatcherTimer? dispatcherTimer;
         bool includeAdvanced = false;
         private static Random rng = new Random();
+        private const int DefaultRefreshMinutes = 5;
 
         //permanent settings in computer
         readonly LocalSettingsHelper localSettingsHelper = new LocalSettingsHelper("100words");
@@ -72,7 +67,6 @@ namespace words100
             LoadingPanel.Visibility = Visibility.Visible;
             contentWindow.Visibility = Visibility.Collapsed;
             EmptyPanel.Visibility = Visibility.Collapsed;
-            ShuffleButton.Visibility = Visibility.Collapsed;
 
             // Unsubscribe before changing index to avoid firing during init
             ThemeSelector.SelectionChanged -= ThemeSelector_SelectionChanged;
@@ -109,36 +103,27 @@ namespace words100
             ThemeSelector.SelectedIndex = savedTheme switch { "Light" => 1, "Dark" => 2, _ => 0 };
             ThemeSelector.SelectionChanged += ThemeSelector_SelectionChanged;
 
-            bool isPinned = localSettings["100wordsPanePinned"] is string pinned && pinned == "true";
-            PinPaneButton.IsChecked = isPinned;
-            NavView.PaneDisplayMode = isPinned
-                ? NavigationViewPaneDisplayMode.Left
-                : NavigationViewPaneDisplayMode.LeftMinimal;
-
             RefreshVocabulary();
             LoadingPanel.Visibility = Visibility.Collapsed;
 
             if (Double.TryParse((string?)localSettings["100wordsRefreshTime"], out double timerValue))
             {
-                DispatcherTimerSetup(TimeSpan.FromHours(timerValue));
+                DispatcherTimerSetup(TimeSpan.FromMinutes(timerValue));
                 UpdateTime.Text = timerValue.ToString();
-                timerRefreshValueinMinutes = timerValue;
             }
             else
             {
-                int value = 120;
-                DispatcherTimerSetup(new TimeSpan(0, value, 0));
-                UpdateTime.Text = value.ToString();
-                timerRefreshValueinMinutes = value;
+                DispatcherTimerSetup(TimeSpan.FromMinutes(DefaultRefreshMinutes));
+                UpdateTime.Text = DefaultRefreshMinutes.ToString();
             }
         }
+
         internal async void RefreshVocabulary()
         {
             if (vocabulary == null || vocabulary.Count == 0 || languages == null || languages.Count == 0
                 || languages.All(l => l == string.Empty))
             {
                 contentWindow.Visibility = Visibility.Collapsed;
-                ShuffleButton.Visibility = Visibility.Collapsed;
                 EmptyPanel.Visibility = Visibility.Visible;
                 return;
             }
@@ -151,7 +136,6 @@ namespace words100
             }
 
             contentWindow.Visibility = Visibility.Visible;
-            ShuffleButton.Visibility = Visibility.Visible;
             EmptyPanel.Visibility = Visibility.Collapsed;
             MakePhraseVisible(vocabulary.First(), languages);
         }
@@ -179,25 +163,12 @@ namespace words100
             Word3.Text = phraseInOrder[3].Item1;
             Word3Flag.Source = phraseInOrder[3].Item2 is string f3 ? new BitmapImage(ResolveUri(f3)) : null;
 
-            if (ApiInformation.IsTypePresent("Windows.UI.Notifications.TileUpdateManager") && IsPackaged())
-            {
-                var updater = TileUpdateManager.CreateTileUpdaterForApplication();
-                updater.EnableNotificationQueue(true);
-                updater.Clear();
-                var tileXml = GetNotificationXml(phraseInOrder[0].Item1, phraseInOrder[1].Item1, phraseInOrder[2].Item1, phraseInOrder[3].Item1);
-                var notification = new TileNotification(tileXml);
-                notification.ExpirationTime = DateTimeOffset.UtcNow.AddMinutes(timerRefreshValueinMinutes);
-                updater.Update(notification);
-            }
+
         }
 
         private void ButtonShuffle_Click(object sender, RoutedEventArgs e)
         {
-            RefreshVocabulary();
-        }
-
-        private void ButtonShuffle_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
-        {
+            _ = SaveSettingsAsync();
             RefreshVocabulary();
         }
 
@@ -234,16 +205,12 @@ namespace words100
             args.Handled = true;
         }
 
-        private void PinPaneButton_Checked(object sender, RoutedEventArgs e)
+        private void HamburgerButton_Click(object sender, RoutedEventArgs e)
         {
-            NavView.PaneDisplayMode = NavigationViewPaneDisplayMode.Left;
-            localSettings["100wordsPanePinned"] = "true";
-        }
-
-        private void PinPaneButton_Unchecked(object sender, RoutedEventArgs e)
-        {
-            NavView.PaneDisplayMode = NavigationViewPaneDisplayMode.LeftMinimal;
-            localSettings["100wordsPanePinned"] = "false";
+            bool isOpening = !MainSplitView.IsPaneOpen;
+            MainSplitView.IsPaneOpen = isOpening;
+            if (!isOpening)
+                _ = SaveSettingsAsync();
         }
 
         private void ThemeSelector_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -267,7 +234,7 @@ namespace words100
                 root.RequestedTheme = elementTheme;
         }
 
-        private async void ButtonSaveSettings_Click(object sender, RoutedEventArgs e)
+        private async Task SaveSettingsAsync()
         {
             //time change
             dispatcherTimer?.Stop();
@@ -278,9 +245,8 @@ namespace words100
             }
             else
             {
-                int value = 120;
-                DispatcherTimerSetup(new TimeSpan(0, value, 0));
-                UpdateTime.Text = value.ToString();
+                DispatcherTimerSetup(TimeSpan.FromMinutes(DefaultRefreshMinutes));
+                UpdateTime.Text = DefaultRefreshMinutes.ToString();
             }
             dispatcherTimer?.Start();
 
@@ -298,34 +264,10 @@ namespace words100
                 Language4.SelectedItem?.ToString() ?? string.Empty
             };
             languages = langOrder;
-
-            MakePhraseVisible(vocabulary.First(), languages);
             localSettings["100wordsLanguageOrder"] = languages.ToArray();
         }
 
-        private async void ButtonTile_Click(object sender, RoutedEventArgs e)
-        {
-            //https://docs.microsoft.com/en-us/windows/uwp/design/shell/tiles-and-notifications/primary-tile-apis
-            if (ApiInformation.IsTypePresent("Windows.UI.StartScreen.StartScreenManager") && IsPackaged())
-            {
-                // Primary tile API's supported!
-
-                // Get your own app list entry
-                // (which is always the first app list entry assuming you are not a multi-app package)
-                AppListEntry entry = (await Package.Current.GetAppListEntriesAsync())[0];                
-
-                // Check if Start supports your app
-                bool isSupported = StartScreenManager.GetDefault().SupportsAppListEntry(entry);
-
-                // Check if your app is currently pinned
-                bool isPinned = await StartScreenManager.GetDefault().ContainsAppListEntryAsync(entry);
-
-                // And pin it to Start
-                isPinned = await StartScreenManager.GetDefault().RequestAddAppListEntryAsync(entry);
-            }
-        }
-
-        public List<Phrase> Shuffle<Phrase>(List<Phrase> list) //mixing available dictionary to show first element
+        public List<Phrase> Shuffle<Phrase>(List<Phrase> list)
         {
             try
             {
@@ -386,31 +328,6 @@ namespace words100
 
         private static bool IsPackaged() => _isPackaged;
 
-        internal Windows.Data.Xml.Dom.XmlDocument GetNotificationXml(string word0, string word1, string word2, string word3)
-        {
-            string xmlString = $@"
-<tile>
-  <visual displayName=""100 finnish words"" branding=""nameAndLogo"">
-    <binding template=""TileLarge"">
-      <text hint-style=""headerNumeral"" hint-wrap=""true"">{System.Security.SecurityElement.Escape(word0)}</text>
-      <text hint-style=""titleSubtle"" hint-wrap=""true"">{System.Security.SecurityElement.Escape(word1)}</text>
-      <text hint-style=""titleSubtle"" hint-wrap=""true"">{System.Security.SecurityElement.Escape(word2)}</text>
-      <text hint-style=""titleSubtle"" hint-wrap=""true"">{System.Security.SecurityElement.Escape(word3)}</text>
-    </binding>
-    <binding template=""TileWide"">
-      <text hint-style=""headerNumeral"">{System.Security.SecurityElement.Escape(word0)}</text>
-      <text hint-style=""bodySubtle"" hint-wrap=""true"">{System.Security.SecurityElement.Escape(word1)} / {System.Security.SecurityElement.Escape(word2)} / {System.Security.SecurityElement.Escape(word3)}</text>
-    </binding>
-    <binding template=""TileMedium"" branding=""logo"">
-      <text hint-style=""titleNumeral"">{System.Security.SecurityElement.Escape(word0)}</text>
-      <text hint-style=""caption"">{System.Security.SecurityElement.Escape(word1)}</text>
-      <text hint-style=""captionSubtle"">{System.Security.SecurityElement.Escape(word2)}</text>
-    </binding>
-  </visual>
-</tile>";
-            var doc = new Windows.Data.Xml.Dom.XmlDocument();
-            doc.LoadXml(xmlString);
-            return doc;
-        }
+
     }
 }
