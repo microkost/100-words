@@ -282,7 +282,7 @@ namespace words100
                 DispatcherTimerSetup(new TimeSpan(0, value, 0));
                 UpdateTime.Text = value.ToString();
             }
-            dispatcherTimer.Start();
+            dispatcherTimer?.Start();
 
             //advanced words toggle
             includeAdvanced = AdvancedWordsToggle.IsOn;
@@ -364,8 +364,8 @@ namespace words100
         void DispatcherTimer_TimeElapsedEvent(object? sender, object e) //countdown event method
         {
             dispatcherTimer?.Stop();
-            RefreshVocabulary(); //reoder vocabulary and show it again
-            dispatcherTimer.Start();
+            RefreshVocabulary();
+            dispatcherTimer?.Start();
         }
 
         private static Uri ResolveUri(string uri)

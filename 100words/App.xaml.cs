@@ -2,6 +2,8 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using System;
+using System.IO;
 
 namespace words100
 {
@@ -26,6 +28,12 @@ namespace words100
 
             _window.Content = rootFrame;
             _window.Title = "100 Words";
+
+            // Set title bar icon from the Square44x44Logo asset
+            var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "Square44x44Logo.targetsize-32.png");
+            if (File.Exists(iconPath))
+                _window.AppWindow.SetIcon(iconPath);
+
             _window.Activate();
         }
     }

@@ -9,7 +9,7 @@ namespace words100
 {
     public static class Dictionary
     {
-        private static DictionaryData _cache = null;
+        private static DictionaryData? _cache = null;
 
         public static async Task<DictionaryData> LoadAsync()
         {
@@ -27,9 +27,9 @@ namespace words100
             {
                 languages.Add(new LanguageDefinition
                 {
-                    Code = lang.GetProperty("code").GetString(),
-                    Name = lang.GetProperty("name").GetString(),
-                    Flag = lang.GetProperty("flag").GetString()
+                    Code = lang.GetProperty("code").GetString() ?? string.Empty,
+                    Name = lang.GetProperty("name").GetString() ?? string.Empty,
+                    Flag = lang.GetProperty("flag").GetString() ?? string.Empty
                 });
             }
 
@@ -38,7 +38,7 @@ namespace words100
             {
                 var phrase = new Phrase { Level = p.GetProperty("level").GetString() };
                 foreach (var lang in languages)
-                    phrase.Translations[lang.Code] = p.GetProperty(lang.Code).GetString();
+                    phrase.Translations[lang.Code] = p.GetProperty(lang.Code).GetString() ?? string.Empty;
                 phrases.Add(phrase);
             }
 
