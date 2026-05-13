@@ -118,7 +118,7 @@ namespace words100
             }
         }
 
-        internal async void RefreshVocabulary()
+        private async void RefreshVocabulary()
         {
             if (vocabulary == null || vocabulary.Count == 0 || languages == null || languages.Count == 0
                 || languages.All(l => l == string.Empty))
@@ -140,7 +140,7 @@ namespace words100
             MakePhraseVisible(vocabulary.First(), languages);
         }
 
-        public async void MakePhraseVisible(Phrase phrase, List<String> specifiedOrder)
+        private async void MakePhraseVisible(Phrase phrase, List<String> specifiedOrder)
         {
             var langDefs = await Dictionary.GetListOfLanguagesAsync(); // code + name + flag from JSON
 
@@ -162,8 +162,6 @@ namespace words100
             Word2Flag.Source = phraseInOrder[2].Item2 is string f2 ? new BitmapImage(ResolveUri(f2)) : null;
             Word3.Text = phraseInOrder[3].Item1;
             Word3Flag.Source = phraseInOrder[3].Item2 is string f3 ? new BitmapImage(ResolveUri(f3)) : null;
-
-
         }
 
         private void ButtonShuffle_Click(object sender, RoutedEventArgs e)
@@ -201,6 +199,7 @@ namespace words100
 
         private void ShuffleAccelerator_Invoked(KeyboardAccelerator sender, Microsoft.UI.Xaml.Input.KeyboardAcceleratorInvokedEventArgs args)
         {
+            _ = SaveSettingsAsync();
             RefreshVocabulary();
             args.Handled = true;
         }
@@ -267,7 +266,7 @@ namespace words100
             localSettings["100wordsLanguageOrder"] = languages.ToArray();
         }
 
-        public List<Phrase> Shuffle<Phrase>(List<Phrase> list)
+        private List<T> Shuffle<T>(List<T> list)
         {
             try
             {
@@ -275,7 +274,7 @@ namespace words100
             }
             catch
             {
-                return new List<Phrase>(); //when last word was removed, return empty list
+                return new List<T>();
             }
 
             int n = list.Count;
@@ -283,14 +282,14 @@ namespace words100
             {
                 n--;
                 int k = rng.Next(n + 1);
-                Phrase value = list[k];
+                T value = list[k];
                 list[k] = list[n];
                 list[n] = value;
             }
 
             return list;
         }
-        public void DispatcherTimerSetup(TimeSpan ts)
+        private void DispatcherTimerSetup(TimeSpan ts)
         {
             if (dispatcherTimer != null)
             {
