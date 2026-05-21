@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Navigation;
+using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace words100
@@ -76,26 +77,22 @@ namespace words100
 
             vocabulary = await Dictionary.GetListOfWordsAsync(includeAdvanced);
 
-            try
+            var allLanguages = await Dictionary.GetListOfLanguagesAsync();
+            var expectedLanguages = allLanguages.Select(l => l.Name).ToList();
+
+            if (localSettings["100wordsLanguageOrder"] is string[] saved && saved.Length == 4
+                && saved.Where(l => l != string.Empty).Distinct().Count() == saved.Where(l => l != string.Empty).Count()
+                && saved.All(l => l == string.Empty || expectedLanguages.Contains(l)))
             {
-                languages = ((string[])localSettings["100wordsLanguageOrder"]!).ToList();
-                var expectedLanguages = (await Dictionary.GetListOfLanguagesAsync()).Select(l => l.Name).ToList();
-                bool hasInvalidEntry = languages.Count != 4 ||
-                    languages.Where(l => l != string.Empty).Distinct().Count() != languages.Where(l => l != string.Empty).Count() ||
-                    languages.Any(l => l != string.Empty && !expectedLanguages.Contains(l));
-                if (hasInvalidEntry)
-                {
-                    languages = expectedLanguages.Take(4).ToList();
-                    localSettings["100wordsLanguageOrder"] = languages.ToArray();
-                }
+                languages = saved.ToList();
             }
-            catch
+            else
             {
-                languages = (await Dictionary.GetListOfLanguagesAsync()).Select(l => l.Name).ToList();
+                languages = expectedLanguages.Take(4).ToList();
+                localSettings["100wordsLanguageOrder"] = languages.ToArray();
             }
 
-            languageOptions = new List<String> { string.Empty }.Concat(
-                (await Dictionary.GetListOfLanguagesAsync()).Select(l => l.Name)).ToList();
+            languageOptions = new List<String> { string.Empty }.Concat(expectedLanguages).ToList();
 
             AdvancedWordsToggle.IsOn = includeAdvanced;
 
@@ -208,6 +205,7 @@ namespace words100
         {
             bool isOpening = !MainSplitView.IsPaneOpen;
             MainSplitView.IsPaneOpen = isOpening;
+            AutomationProperties.SetName(HamburgerButton, isOpening ? "Close settings" : "Open settings");
             if (!isOpening)
                 _ = SaveSettingsAsync();
         }

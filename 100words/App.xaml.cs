@@ -29,8 +29,7 @@ namespace words100
             _window.Content = rootFrame;
             _window.Title = "100 Words";
 
-            // Set title bar icon from the Square44x44Logo asset
-            var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "Square44x44Logo.targetsize-32.png");
+            var iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "appicon.ico");
             if (File.Exists(iconPath))
                 _window.AppWindow.SetIcon(iconPath);
 

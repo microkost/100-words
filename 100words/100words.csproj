@@ -31,6 +31,7 @@
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\Square44x44Logo.targetsize-32.png" />
     <Content Include="Assets\StoreLogo.png" />
+    <Content Include="Assets\appicon.ico" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
     <Content Include="Assets\flagCZ.png" />
     <Content Include="Assets\flagEN.png" />
@@ -43,6 +44,7 @@
   <Target Name="CopyRuntimeAssetsToOutput" AfterTargets="Build">
     <ItemGroup>
       <_RuntimeAssets Include="Assets\Square44x44Logo.targetsize-32.png" />
+      <_RuntimeAssets Include="Assets\appicon.ico" />
       <_RuntimeAssets Include="Assets\flagCZ.png" />
       <_RuntimeAssets Include="Assets\flagEN.png" />
       <_RuntimeAssets Include="Assets\flagFI.png" />

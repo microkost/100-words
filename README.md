@@ -32,7 +32,7 @@ The original idea came from learning Finnish as a non-native speaker: a compact 
 
 ### For Developers
 
-The current application is a **WinUI 3 unpackaged desktop app** built on **.NET 8**.
+The current application is a **WinUI 3 desktop app** built on **.NET 8**.
 
 - .NET 8
 - C# and XAML with `Microsoft.UI.Xaml`

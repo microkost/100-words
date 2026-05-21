@@ -54,7 +54,9 @@
                    PanePlacement="Left">
 
             <SplitView.Pane>
-                <Grid Background="{ThemeResource NavigationViewDefaultPaneBackground}">
+                <Grid Background="{ThemeResource NavigationViewDefaultPaneBackground}"
+                      AutomationProperties.Name="Settings"
+                      AutomationProperties.LandmarkType="Navigation">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="8,8,8,0">
                         <StackPanel Spacing="4" Margin="0,0,0,16">
 
@@ -116,7 +118,7 @@
                                         <Span xml:space="preserve"><Run>Fun app for vocabulary practice. </Run><Hyperlink NavigateUri="https://goo.gl/forms/a72Osyz1Bpu4mqq22">Suggest phrases or corrections.</Hyperlink></Span>
                                     </TextBlock>
                                     <TextBlock Style="{StaticResource CaptionTextBlockStyle}">
-                                        <Span xml:space="preserve"><Run>Author: </Run><Hyperlink NavigateUri="http://www.kostecky.cz">Ivo Kosteck&#253;</Hyperlink></Span>
+                                        <Span xml:space="preserve"><Run>Author: </Run><Hyperlink NavigateUri="https://www.kostecky.cz">Ivo Kosteck&#253;</Hyperlink></Span>
                                     </TextBlock>
                                 </StackPanel>
                             </Expander>
@@ -135,7 +137,8 @@
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             Spacing="16">
-                    <ProgressRing IsActive="True" Width="48" Height="48"/>
+                    <ProgressRing IsActive="True" Width="48" Height="48"
+                                  AutomationProperties.Name="Loading vocabulary"/>
                     <TextBlock Text="Loading vocabulary..."
                                Style="{StaticResource BodyTextBlockStyle}"
                                HorizontalAlignment="Center"/>
@@ -149,7 +152,8 @@
                             VerticalAlignment="Center"
                             Spacing="12">
                     <FontIcon Glyph="&#xE82F;" FontSize="48"
-                              Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                              Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                              AutomationProperties.AccessibilityView="Raw"/>
                     <TextBlock Text="No words to show"
                                Style="{StaticResource SubtitleTextBlockStyle}"
                                HorizontalAlignment="Center"/>
@@ -170,20 +174,28 @@
                          Margin="24,8,24,8">
                     <StackPanel Orientation="Vertical" Spacing="8" HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-                            <Image x:Name="Word0Flag" Width="36" Height="24"/>
-                            <TextBlock x:Name="Word0" Text="&#x2014;" Style="{StaticResource TitleLargeTextBlockStyle}" VerticalAlignment="Center"/>
+                            <Image x:Name="Word0Flag" Width="36" Height="24"
+                                   AutomationProperties.Name="Language flag"/>
+                            <TextBlock x:Name="Word0" Text="&#x2014;" Style="{StaticResource TitleLargeTextBlockStyle}" VerticalAlignment="Center"
+                                       AutomationProperties.Name="Primary word"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-                            <Image x:Name="Word1Flag" Width="36" Height="24"/>
-                            <TextBlock x:Name="Word1" Text="&#x2014;" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center"/>
+                            <Image x:Name="Word1Flag" Width="36" Height="24"
+                                   AutomationProperties.Name="Language flag"/>
+                            <TextBlock x:Name="Word1" Text="&#x2014;" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center"
+                                       AutomationProperties.Name="Translation 1"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-                            <Image x:Name="Word2Flag" Width="36" Height="24"/>
-                            <TextBlock x:Name="Word2" Text="&#x2014;" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center"/>
+                            <Image x:Name="Word2Flag" Width="36" Height="24"
+                                   AutomationProperties.Name="Language flag"/>
+                            <TextBlock x:Name="Word2" Text="&#x2014;" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center"
+                                       AutomationProperties.Name="Translation 2"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
-                            <Image x:Name="Word3Flag" Width="36" Height="24"/>
-                            <TextBlock x:Name="Word3" Text="&#x2014;" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center"/>
+                            <Image x:Name="Word3Flag" Width="36" Height="24"
+                                   AutomationProperties.Name="Language flag"/>
+                            <TextBlock x:Name="Word3" Text="&#x2014;" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center"
+                                       AutomationProperties.Name="Translation 3"/>
                         </StackPanel>
                     </StackPanel>
                 </Viewbox>
