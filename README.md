@@ -28,15 +28,14 @@ The original idea came from learning Finnish as a non-native speaker: a compact 
 - Adjustable refresh timer and manual shuffle
 - Light, dark, and system theme support
 - Optional advanced words in addition to the core vocabulary set
-- Live Tile-related behavior is no longer central on modern Windows, but the app still preserves the core learning flow
 
 ### For Developers
 
-The current application is a **WinUI 3 desktop app** built on **.NET 8**.
+The current application is a **WinUI 3 desktop app** built on **.NET 10**.
 
-- .NET 8
+- .NET 10
 - C# and XAML with `Microsoft.UI.Xaml`
-- WinUI 3 through **Windows App SDK 1.6**
+- WinUI 3 through **Windows App SDK 2.0**
 - File-backed local settings in `%LOCALAPPDATA%\100words\settings.json`
 - Vocabulary loaded from `100words/Assets/dictionary.json`
 - No backend services or online dependency
