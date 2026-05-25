@@ -12,7 +12,11 @@ namespace words100
         [STAThread]
         static void Main(string[] args)
         {
-            Bootstrap.Initialize(0x00010006); // Windows App SDK 1.6
+#if !PACKAGED
+            // Unpackaged (local dev): manually bootstrap the Windows App SDK runtime.
+            // For Store/MSIX builds, the runtime is part of the package - skip this.
+            Bootstrap.Initialize(0x00020000); // Windows App SDK 2.0
+#endif
 
             ComWrappersSupport.InitializeComWrappers();
             Application.Start((p) =>
@@ -22,7 +26,9 @@ namespace words100
                 new App();
             });
 
+#if !PACKAGED
             Bootstrap.Shutdown();
+#endif
         }
     }
 }

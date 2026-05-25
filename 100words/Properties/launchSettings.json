@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "100words (Package)": {
+      "commandName": "MsixPackage",
+      "nativeDebugging": false
+    }
+  }
+}

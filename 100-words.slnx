@@ -1,2 +1,23 @@
 <Solution>
+  <Configurations>
+    <SolutionConfiguration Name="Debug|ARM64" />
+    <SolutionConfiguration Name="Debug|x64" />
+    <SolutionConfiguration Name="Debug|x86" />
+    <SolutionConfiguration Name="Release|ARM64" />
+    <SolutionConfiguration Name="Release|x64" />
+    <SolutionConfiguration Name="Release|x86" />
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path="ARCHITECTURE.md" />
+    <File Path="README.md" />
+    <File Path="documentation/StoreDescription.txt" />
+  </Folder>
+  <Project Path="100words/100words.csproj">
+    <BuildType Solution="Debug|x64" Project="Release" />
+    <Platform Solution="*|x64" Project="x64" />
+    <Platform Solution="Release|Any CPU" Project="x64" />
+    <Deploy Solution="*|x64" />
+  </Project>
 </Solution>
