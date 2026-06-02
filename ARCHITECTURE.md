@@ -2,247 +2,235 @@
 
 ## Overview
 
-100 Words is a Universal Windows Platform (UWP) application designed to help users learn the 100 most essential words in a foreign language through passive exposure via Windows Live Tiles.
+100 Words is a Windows desktop language-learning app built with WinUI 3 on .NET 10. It helps users learn a small set of practical vocabulary through repeated exposure, while keeping the app offline and lightweight.
 
 ## Technical Stack
 
-- **Platform**: Universal Windows Platform (UWP) on modern .NET
+- **Platform**: Windows desktop app with WinUI 3
 - **Language**: C# with XAML
-- **Target Framework**: net10.0-windows10.0.26100.0
-- **Minimum Platform Version**: 10.0.19041.0 (Windows 10, version 2004)
-- **Maximum Tested Version**: 10.0.26100.0 (Windows 11, version 24H2)
-- **IDE**: Visual Studio 2022 (17.8+) or Visual Studio 2026+
-- **Project Style**: SDK-style with `UseUwp` and `UseUwpTools`
-- **XAML Support**: Windows.UI.Xaml via CsWinRT projections
-- **Build System**: Visual Studio MSBuild (required for UWP XAML compilation)
+- **Target Framework**: `net10.0-windows10.0.19041.0`
+- **Minimum Platform Version**: `10.0.19041.0` (Windows 10, version 2004)
+- **Target Platforms**: `x86`, `x64`, `ARM64`
+- **Runtime Identifiers**: `win-x86`, `win-x64`, `win-arm64`
+- **IDE**: Visual Studio 2026+
+- **Project Style**: SDK-style .NET desktop project
+- **XAML Support**: `Microsoft.UI.Xaml` from Windows App SDK
+- **Build System**: Visual Studio MSBuild
 
 ### Key Dependencies
 
-- `Microsoft.Toolkit.Uwp.Notifications` 7.1.3 - For Live Tile notifications
+- `Microsoft.WindowsAppSDK` 2.0.1
+- `Microsoft.Windows.SDK.BuildTools` 10.0.26100.4654
 
-### Migration History
+## Solution Structure
 
-This application was successfully modernized from legacy .NET Native UWP to modern .NET. See [MODERNIZATION-PLAN.md](MODERNIZATION-PLAN.md) for details.
+The solution currently contains one project:
+
+- `100words/100words.csproj`
+
+Solution file:
+
+- `100-words.slnx`
+
+The solution also includes documentation items such as:
+
+- `README.md`
+- `ARCHITECTURE.md`
+- `documentation/StoreDescription.txt`
 
 ## Architecture Design
 
-The application follows a simple, monolithic UWP architecture with no external dependencies or backend services. All data is embedded in the application and stored locally.
+The application follows a simple single-project desktop architecture with no backend services. Vocabulary data, settings, and UI logic all live in the same app project.
 
 ### Core Components
 
-#### 1. Data Layer
+#### 1. App Startup
 
-**Dictionary.cs**
-- Static class containing all vocabulary data
-- Hardcoded list of supported languages
-- Hardcoded list of 100 essential phrases with translations
-- Methods:
-  - `GetListOfLanguages()` - Returns list of 4 supported language names
-  - `GetListOfWords()` - Returns list of 100 Phrase objects
-
-**Phrase.cs**
-- Data model representing a single vocabulary word/phrase
-- Properties:
-  - `wordFI` - Finnish translation
-  - `wordEN` - English translation
-  - `wordCZ` - Czech translation
-  - `wordPL` - Polish translation
-- Constructor takes all 4 translations as parameters
-
-#### 2. Presentation Layer
-
-**MainPage.xaml / MainPage.xaml.cs**
-- Main and only user interface screen
-- Displays current vocabulary word with translations
-- Manages Live Tile updates
-- Handles user interactions (skip button, settings)
-- Core functionality:
-  - **Vocabulary Management**: Shuffles and displays words
-  - **Live Tile Updates**: Pushes current word to Windows Start menu tile
-  - **Timer Management**: Automatic word rotation based on user-defined interval
-  - **Language Ordering**: Customizable display order for translations
-  - **Settings Persistence**: Uses UWP ApplicationData for local storage
+**Program.cs**
+- Entry point for the app
+- Initializes Windows App SDK bootstrap when running unpackaged
+- Initializes COM wrappers
+- Starts the WinUI application loop
+- Uses `PACKAGED` compilation symbol to switch between unpackaged and packaged behavior
 
 **App.xaml / App.xaml.cs**
-- Application lifecycle management
-- Standard UWP application entry point
+- Application lifecycle and window creation
+- Creates the main window on launch
+- Applies Mica backdrop when supported
+- Sets the window title and icon
+- Hosts the root frame and navigates to `MainPage`
 
-#### 3. Storage Layer
+#### 2. Main UI Layer
 
-Uses Windows UWP `ApplicationDataContainer` for persistent local storage:
-- `100wordsLanguageOrder` - User's preferred language display order (string array)
-- `100wordsRefreshTime` - Automatic refresh interval in hours (string)
+**MainPage.xaml / MainPage.xaml.cs**
+- Main application page and user interface
+- Displays vocabulary words in up to four language slots
+- Supports theme selection
+- Supports manual shuffle and automatic refresh
+- Supports enabling or disabling advanced words
+- Supports language ordering customization
+- Persists settings locally
 
-## Key Features Implementation
+Key behavior:
+- Loads vocabulary from `dictionary.json`
+- Restores saved language order, theme, refresh interval, and advanced-word setting
+- Refreshes words using a `DispatcherTimer`
+- Resolves `ms-appx:///` asset URIs to local file paths when running unpackaged
 
-### 1. Live Tile Integration
+#### 3. Data Layer
 
-The app's signature feature uses Windows 10/11 Live Tiles:
+**Dictionary.cs**
+- Loads vocabulary from `100words/Assets/dictionary.json`
+- Parses available languages and phrases from JSON
+- Caches loaded data in memory
+- Returns either the basic vocabulary set or the full set depending on the advanced-word setting
 
-```csharp
-var notification = new TileNotification(GetNotificationScheme(...).GetXml());
-TileUpdateManager.CreateTileUpdaterForApplication().Update(notification);
-```
+**Phrase.cs**
+- Represents a vocabulary phrase
+- Stores per-language translations
+- Stores a `Level` field such as `basic` or `advanced`
 
-- Updates whenever a new word is displayed
-- Shows current vocabulary word directly in Start menu
-- Provides passive learning through repeated exposure
+#### 4. Settings Layer
 
-### 2. Vocabulary Shuffling
+**LocalSettingsHelper.cs**
+- File-based local settings implementation
+- Stores settings in `%LOCALAPPDATA%\\100words\\settings.json`
+- Mimics dictionary-style access similar to `ApplicationDataContainer.Values`
+- Supports reset by deleting the settings file
 
-Words are randomly shuffled using Fisher-Yates algorithm:
-- Ensures each session presents words in different order
-- Prevents predictability and maintains user engagement
-- Reloads full dictionary when all words are shown
+Used settings include:
+- `100wordsLanguageOrder`
+- `100wordsRefreshTime`
+- `100wordsTheme`
+- `100wordsIncludeAdvanced`
 
-### 3. Automatic Timer
+## Runtime Model
 
-Uses `DispatcherTimer` for periodic word updates:
-- Default: 2 hours between word changes
-- User-configurable via settings
-- Persisted across app sessions
+The app can run in two modes:
 
-### 4. Language Priority Customization
+### Packaged mode
+- Runs as a Store/MSIX package
+- Uses package identity when available
+- Skips runtime bootstrap
+- Uses packaged asset paths directly
 
-Users can reorder which language appears in which position:
-- Allows learning any supported language from any other supported language
-- Settings stored locally and restored on app restart
+### Unpackaged mode
+- Used for local development
+- Initializes Windows App SDK manually in `Program.cs`
+- Resolves `ms-appx:///` asset URIs to local files in the app directory
 
 ## Data Flow
 
-1. **App Launch**:
-   - Load dictionary (100 words × 4 languages)
-   - Restore user settings from local storage
-   - Initialize UI with language ordering
-   - Shuffle vocabulary list
+1. **Startup**
+   - App bootstraps Windows App SDK if unpackaged
+   - `App` creates the window and navigates to `MainPage`
+   - `MainPage` loads settings and vocabulary
 
-2. **Display Word**:
-   - Select first word from shuffled list
-   - Display in UI according to language order
-   - Update Live Tile with same content
-   - Remove word from current session list
+2. **Vocabulary loading**
+   - `Dictionary.LoadAsync()` reads `dictionary.json`
+   - Languages and phrases are cached in memory
+   - Basic or advanced phrases are selected based on user preference
 
-3. **Timer Tick** (or Manual Skip):
-   - Trigger vocabulary refresh
-   - If list empty, reload and reshuffle dictionary
-   - Display next word
-   - Update Live Tile
+3. **Display update**
+   - A phrase is chosen and shuffled
+   - Translations are mapped to the selected language order
+   - Flags and text are rendered in four slots
 
-4. **Settings Change**:
-   - Update language order
-   - Update timer interval
-   - Persist to local storage
-   - Refresh display with new settings
+4. **Timer refresh**
+   - `DispatcherTimer` advances to the next word
+   - When the list is exhausted, the dictionary is reloaded and reshuffled
+
+5. **Settings persistence**
+   - User changes are saved to the JSON settings file
+   - Settings survive app restarts
 
 ## Design Decisions
 
-### Why Hardcoded Dictionary?
+### Why JSON-backed local settings?
 
-- **Offline-First**: No internet dependency
-- **Simplicity**: No database or file I/O complexity
-- **Performance**: Instant load times
-- **Reliability**: No data corruption or version conflicts
-- **Trade-off**: Adding languages requires app update
+- Works without package identity
+- Keeps the app usable in both packaged and unpackaged modes
+- Easy to inspect and reset
+- No database or backend required
 
-### Why UWP?
+### Why WinUI 3?
 
-- **Live Tiles**: Core feature only available in UWP
-- **Windows Integration**: Native OS features
-- **Historical Context**: Developed when UWP was Microsoft's recommended platform
-- **Modern .NET Support**: Successfully migrated to modern .NET while keeping UWP features
+- Modern Windows desktop UI stack
+- Works well with .NET 10
+- Supports current Windows App SDK APIs
+- Fits the app’s Windows-only, desktop-first scope
 
-### Why 4 Languages Max?
+### Why a single project?
 
-- UI designed for fixed 4-column layout
-- Simplifies language ordering logic
-- Current implementation has hardcoded checks: `if (specifiedOrder.Count < 4)`
-- Expanding requires UI redesign and code refactoring
+- Keeps the app simple
+- Reduces build and maintenance complexity
+- Matches the app’s offline, self-contained nature
 
 ## Known Limitations
 
-1. **UWP Deprecation**: Microsoft has deprecated UWP in favor of WinUI 3 and .NET MAUI
-2. **Fixed Language Count**: Adding more languages requires code changes
-3. **Manual Dictionary Updates**: New vocabulary requires recompilation
-4. **Windows-Only**: Cannot run on other platforms (Mac, Linux, mobile)
-5. **Live Tile Dependency**: Core feature unavailable if Microsoft removes Live Tiles
-
-## Future Considerations
-
-### Potential Migration Paths
-
-1. **WinUI 3**: Maintain Windows-native experience with modern framework
-2. **.NET MAUI**: Enable cross-platform support (Windows, Mac, iOS, Android)
-3. **Blazor Hybrid**: Web-based UI with native capabilities
-
-### Architecture Improvements
-
-- Extract dictionary to JSON/database for easier updates
-- Add dynamic language support without recompilation
-- Implement backend API for community-contributed translations
-- Add spaced repetition algorithm for better learning
-- Support user-custom word lists
+1. **Windows-only**: The app targets Windows desktop only.
+2. **Fixed language count**: The UI is built around four visible language slots.
+3. **Local dictionary updates require rebuilding**: Vocabulary changes ship with app updates.
+4. **No backend sync**: Settings and vocabulary are entirely local.
+5. **Single-device settings model**: No cloud sync between devices.
 
 ## Building and Deployment
 
 ### Local Development
 
-1. Open `100words.sln` in Visual Studio 2022 (17.8+) or Visual Studio 2026
-2. Ensure UWP workload and Windows SDK (10.0.26100.0) installed
-3. Restore NuGet packages
-4. Set `100words` as the startup project
-5. Select platform (x86, x64, or ARM64)
-6. Build and run (F5)
+1. Open `100-words.slnx` in Visual Studio 2026
+2. Restore NuGet packages
+3. Select a target platform (`x86`, `x64`, or `ARM64`)
+4. Build and run
 
-> **Important**: Must use Visual Studio build, not `dotnet build`, as UWP XAML compilation requires VS MSBuild.
+### Publishing
 
-### Common Issues
+The project includes publish profiles under:
 
-**Missing StoreLogo.png**: If you encounter an error about a missing payload file for `StoreLogo.png`, create the base file by copying one of the scaled versions:
-```powershell
-Copy-Item "Assets\StoreLogo.scale-100.png" -Destination "Assets\StoreLogo.png"
-```
+- `100words/Properties/PublishProfiles/`
 
-The project includes scaled asset versions (e.g., `StoreLogo.scale-100.png`, `StoreLogo.scale-200.png`) but Visual Studio may require the base file to exist.
+Current profiles include:
+
+- `FolderProfile.pubxml`
+- `SingleFileSelfContained.pubxml`
+
+Notes:
+- `FolderProfile.pubxml` is framework-dependent and platform-specific
+- `SingleFileSelfContained.pubxml` produces a self-contained, single-file publish for `win-x64`
+- Store submission still uses MSIX packaging and Partner Center upload flow
 
 ### Microsoft Store Deployment
 
-1. Associate app with Microsoft Store (requires Developer Account)
-2. Update version in Package.appxmanifest
-3. Create app package: Project → Publish → Create App Packages
-4. Upload .appxupload file to Partner Center
+1. Associate the app with Partner Center
+2. Update the package version in `Package.appxmanifest`
+3. Create the Store package through Visual Studio
+4. Upload the package upload file to Partner Center
 5. Submit for certification
-
-Certificate management: http://go.microsoft.com/fwlink/?LinkID=241478
 
 ## Code Style
 
 - Standard C# conventions
-- Minimal comments (code is self-documenting)
-- Hardcoded constants for simplicity
-- Exception handling with try-catch for settings
-- No dependency injection or complex patterns
+- Minimal comments unless needed for clarity
+- Simple, direct control flow
+- Local settings and runtime helpers kept lightweight
+- No dependency injection or layered framework abstractions
 
 ## Testing Strategy
 
-Currently manual testing only:
-- Launch app and verify word display
-- Check Live Tile updates in Start menu
-- Test language reordering
-- Verify timer functionality
-- Test settings persistence across app restarts
+The app is primarily validated through manual testing:
 
-## Performance Characteristics
+- Launch the app and verify vocabulary display
+- Confirm language order changes work
+- Verify theme selection works
+- Check timer-based refresh behavior
+- Confirm settings persist across restarts
+- Test packaged and unpackaged startup paths
 
-- **Startup Time**: Near-instant (< 1 second)
-- **Memory Usage**: Minimal (< 50 MB)
-- **CPU Usage**: Negligible (timer-based only)
-- **Storage**: < 1 MB installed size
-- **Network**: None (fully offline)
+## Security and Privacy Considerations
 
-## Security Considerations
-
-- No user data collection
 - No network communication
-- Settings stored only locally on device
-- No authentication or authorization required
-- Safe for privacy-conscious users
+- No user accounts
+- No analytics backend
+- No cloud storage
+- Settings remain on the local device only
+- Vocabulary data ships with the app
