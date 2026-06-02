@@ -6,7 +6,6 @@
     <SolutionConfiguration Name="Release|ARM64" />
     <SolutionConfiguration Name="Release|x64" />
     <SolutionConfiguration Name="Release|x86" />
-    <Platform Name="Any CPU" />
     <Platform Name="ARM64" />
     <Platform Name="x64" />
     <Platform Name="x86" />
@@ -17,14 +16,9 @@
     <File Path="documentation/StoreDescription.txt" />
   </Folder>
   <Project Path="100words/100words.csproj">
-    <BuildType Solution="Debug|x64" Project="Release" />
-    <Platform Solution="*|ARM64" Project="ARM64" />
+    <BuildType Solution="Debug|x64" Project="Release" />    <Platform Solution="*|ARM64" Project="ARM64" />
     <Platform Solution="*|x64" Project="x64" />
-    <Platform Solution="*|x86" Project="x86" />
-    <Platform Solution="Release|Any CPU" Project="x64" />
-    <Deploy Solution="*|ARM64" />
+    <Platform Solution="*|x86" Project="x86" />    <Deploy Solution="*|ARM64" />
     <Deploy Solution="*|x64" />
-    <Deploy Solution="*|x86" />
-    <Deploy Solution="Release|Any CPU" />
-  </Project>
+    <Deploy Solution="*|x86" />  </Project>
 </Solution>
