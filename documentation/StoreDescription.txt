@@ -9,6 +9,8 @@ Description:
 --- CS (Czech) ---
 Rika se, ze naucenim se prvnich 100 slov ovladnete zaklady ciziho jazyka. Aplikace 100 slov vam pomaha ucit se slovni zasobu pasivnim a prirodzenym zpusobem - primo prostrednictvim nabidky Start ve Windows, kde vam budou slovicka stale na ocich spolu s prekladem.
 
+Zavislosti: Tato aplikace vyzaduje behove prostredi .NET a .NET Desktop Runtime.
+
 Nemusite spoustet zadnou aplikaci ani prerusovat svou praci. Staci otevrit nabidku Start a nove slovo se zobrazi automaticky. Postupnym opakovanim si slovni zasobu zapamatujete bez namahy.
 
 Podporovane jazyky: cestina, anglictina, polstina a finstina. Aplikace zobrazuje slova ze ctyru jazyku soucasne, takze si muzete procvicovat vice jazyku najednou. Poradi zobrazovanych jazyku si muzete libovolne prizpusobit. Nastavte si take vlastni interval zmeny slovicka - od nekolika minut az po hodiny.
@@ -19,6 +21,8 @@ Idealni pro zacatecniky, cestovatele, studenty i kazdeho, kdo chce rozsirit svuj
 
 --- EN (English) ---
 They say that once you know the first 100 words of a language, you're halfway to mastering the basics. The 100 Words app helps you build vocabulary passively and effortlessly - directly through the Windows Start menu, where new words appear automatically alongside their translations.
+
+Dependencies: This app requires the .NET runtime and .NET Desktop Runtime to operate.
 
 No need to open a dedicated study session or interrupt your workflow. Every time you open the Start menu, a word is right there waiting for you. Repeated exposure throughout the day helps you memorize vocabulary naturally over time.
 
@@ -31,6 +35,8 @@ Perfect for beginners, travelers, students, or anyone who wants to expand their 
 --- PL (Polish) ---
 Mowi sie, ze nauka pierwszych 100 slow w nowym jezyku to polowa sukcesu w opanowaniu jego podstaw. Aplikacja 100 slow pomaga budowac slownictwo w sposob pasywny i naturalny - bezposrednio przez menu Start w systemie Windows, gdzie nowe slowa pojawiaja sie automatycznie wraz z tlumaczeniem.
 
+Zaleznosci: Ta aplikacja wymaga srodowiska uruchomieniowego .NET i .NET Desktop.
+
 Nie musisz otwierac zadnej aplikacji ani przerywa swojej pracy. Wystarczy otworzyc menu Start, a nowe slowo pojawi sie samo. Codzienne powtarzanie pozwala zapamietywac slownictwo bez wysilku.
 
 Obslugiwane jezyki: czeski, angielski, polski i finski. Aplikacja wyswietla slowa we wszystkich czterech jezykach jednoczesnie, co ulatwia nauke i porownywanie jezykow. Mozesz dostosowac kolejnosc wyswietlania jezykow do swoich preferencji. Mozesz takze ustawic wlasny interwal zmiany slowa - od kilku minut do kilku godzin.
@@ -42,6 +48,8 @@ Idealna dla poczatkujacych, podroznikow, studentow i kazdego, kto chce poszerzyc
 --- FI (Finnish) ---
 On sanottu, etta kun osaat kielen ensimmaiset 100 sanaa, olet jo puolivalia kielen perusteiden oppimisessa. 100 sanaa -sovellus auttaa sinua kartuttamaan sanavarastoasi passiivisesti ja luonnollisesti - suoraan Windowsin Kaynnista-valikon kautta, jossa uudet sanat nakyva automaattisesti kaannostensa kanssa.
 
+Riippuvuudet: Tama sovellus vaatii .NET-ajoympariston ja .NET Desktop runtime toimiakseen.
+
 Sinun ei tarvitse avata erillistapistiklusovellusta tai keskeyttaa tyoskentelyas. Aina kun avaat Kaynnista-valikon, uusi sana on siella sinua varten. Paivittainen toisto auttaa sinua muistamaan sanat vaivattomasti ajan myota.
 
 Tuetut kielet: tsekki, englanti, puola ja suomi. Sovellus nayttaa sanat kaikilla neljalla kielella samanaikaisesti, mika helpottaa kielten vertailua ja useiden kielten oppimista yhta aikaa. Voit mukauttaa kielten nayttojajestyksen omien mieltymystesi mukaan. Voit myos asettaa haluamasi paivitysvali - muutamasta minuutista tunteihin.
@@ -50,6 +58,12 @@ Sanasto on jaettu kahteen tasoon: perus- ja edistyneeseen. Edistyneet sanat void
 
 Taydellinen aloittelijoille, matkailijoille, opiskelijoille ja kaikille, jotka haluavat laajentaa kielitaitoaan ilman ylimaarista vaivaa. Anna Windowsin opettaa sinulle joka paiva - yksi sana kerrallaan.
 
+Change description
+
+EN: Updated for modern Windows with better stability and a smoother experience. Learning remains fully offline, with improved language display behavior and overall app reliability.
+CS: Aktualizováno pro současné Windows s lepší stabilitou a lepším uživatelským zážitkem. Používání je stále plně offline, s rozšířenou slovní zásobou a vylepšeným chováním zobrazení jazyka.
+PL: Zaktualizowano dla najnowszych wersji systemu Windows, zapewniając lepszą stabilność i komfort użytkowania. Korzystanie z aplikacji nadal odbywa się w trybie offline, z rozszerzonym słownictwem i ulepszonym sposobem wyświetlania języka.
+FI: Päivitetty uusimpaan Windows-versioon paremmalla vakaudella ja käyttökokemuksella. Käyttö on edelleen täysin offline-tilassa, sanastoa on laajennettu ja kielen näyttötoimintoja on parannettu.
 
 Screenshots (image captions)
 	Takto vypada aplikace zapnuta na pocitaci.
@@ -71,3 +85,8 @@ Search terms (up to 7, max 30 chars each):
 	language learning
 	flashcards
 	passive learning
+
+Privacy policy:
+This application does not collect, store, transmit, or share any personal data.
+The app operates entirely on the user’s device and does not connect to external services.
+No analytics, tracking, or third‑party data processors are used.
